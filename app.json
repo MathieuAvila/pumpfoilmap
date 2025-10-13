@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "PumpfoilMap",
+    "slug": "pumpfoilmap",
+    "scheme": "pumpfoilmap",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "ios": { "supportsTablet": true },
+    "android": {},
+    "web": { "bundler": "metro" }
+  }
+}
