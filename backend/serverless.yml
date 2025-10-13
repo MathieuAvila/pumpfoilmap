@@ -1,0 +1,80 @@
+service: pumpfoilmap-backend
+frameworkVersion: '3'
+
+plugins:
+  - serverless-offline
+  - serverless-esbuild
+  - serverless-dynamodb-local
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: eu-west-3
+  stage: dev
+  httpApi:
+    cors: true
+  environment:
+    TABLE_SPOTS: ${self:service}-${sls:stage}-Spots
+
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:Scan
+          Resource:
+            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.TABLE_SPOTS}
+
+functions:
+  getSpots:
+    handler: src/handlers/getSpots.handler
+    events:
+      - httpApi:
+          path: /spots
+          method: get
+
+  postSpot:
+    handler: src/handlers/postSpot.handler
+    events:
+      - httpApi:
+          path: /spots
+          method: post
+
+resources:
+  Resources:
+    SpotsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_SPOTS}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: spotId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: spotId
+            KeyType: HASH
+
+custom:
+  esbuild:
+    bundle: true
+    minify: false
+    sourcemap: true
+    target: node20
+    platform: node
+    external:
+      - aws-sdk
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      docker: true
+      migrate: true
+      seed: true
+      inMemory: true
+    seed:
+      test:
+        sources:
+          - table: ${self:provider.environment.TABLE_SPOTS}
+            sources: [./seeds/spots.json]

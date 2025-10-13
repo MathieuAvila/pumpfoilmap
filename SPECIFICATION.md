@@ -59,5 +59,15 @@ Fournir une carte interactive des pontons de pumpfoil, enrichie par les adhéren
 - RGPD et conformité locale
 
 ## Évolutivité
+## Backend implémenté (MVP)
+- Endpoints disponibles localement:
+	- GET /spots (scan + filtre bbox en mémoire)
+	- POST /spots (validation, statut pending)
+- Stockage: DynamoDB (table Spots PAY_PER_REQUEST)
+- Local: serverless-offline + dynamodb-local (Docker)
+- TU: Jest sur handlers (validation, réponses, bbox)
+
+## Développement local
+Voir `backend/BACKEND-LOCAL.md` pour lancer et tester les endpoints en local (curl, seeds, tests unitaires).
 - Ajout de nouvelles fonctionnalités (événements, météo, statistiques, etc.)
 - Ouverture à d'autres sports nautiques

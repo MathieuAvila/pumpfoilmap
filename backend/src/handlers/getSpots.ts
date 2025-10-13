@@ -1,0 +1,53 @@
+import { ScanCommand } from '@aws-sdk/lib-dynamodb';
+import { ddb, TABLE_SPOTS } from '../lib/db';
+import type { APIGatewayProxyResultV2, APIGatewayProxyEventV2 } from 'aws-lambda';
+import type { BBox } from '../lib/models';
+
+const cors = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  'Access-Control-Allow-Methods': 'GET,OPTIONS'
+};
+
+function parseBBox(bboxStr?: string): BBox | undefined {
+  if (!bboxStr) return;
+  const parts = bboxStr.split(',').map(Number);
+  if (parts.length !== 4 || parts.some((n) => Number.isNaN(n))) return;
+  const [minLng, minLat, maxLng, maxLat] = parts;
+  return { minLng, minLat, maxLng, maxLat };
+}
+
+export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+  try {
+    const limit = Math.min(Number(event.queryStringParameters?.limit ?? 50), 200);
+    const bbox = parseBBox(event.queryStringParameters?.bbox);
+
+    const res = await ddb.send(
+      new ScanCommand({
+        TableName: TABLE_SPOTS,
+        Limit: limit
+      })
+    );
+
+    let items = (res.Items ?? []) as any[];
+
+    if (bbox) {
+      items = items.filter(
+        (s) =>
+          s.lng >= bbox.minLng &&
+          s.lng <= bbox.maxLng &&
+          s.lat >= bbox.minLat &&
+          s.lat <= bbox.maxLat
+      );
+    }
+
+    return {
+      statusCode: 200,
+      headers: cors,
+      body: JSON.stringify({ items, count: items.length })
+    };
+  } catch (err) {
+    console.error(err);
+    return { statusCode: 500, headers: cors, body: JSON.stringify({ message: 'Internal error' }) };
+  }
+};

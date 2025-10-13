@@ -1,0 +1,20 @@
+[
+  {
+    "spotId": "seed-1",
+    "name": "Pontoon Alpha",
+    "lat": 48.8566,
+    "lng": 2.3522,
+    "description": "Paris seed",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "status": "approved"
+  },
+  {
+    "spotId": "seed-2",
+    "name": "Pontoon Beta",
+    "lat": 43.2965,
+    "lng": 5.3698,
+    "description": "Marseille seed",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "status": "approved"
+  }
+]
