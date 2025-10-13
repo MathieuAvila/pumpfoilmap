@@ -26,3 +26,9 @@ npm run android
 ## Suite
 - Intégration AWS (Cognito, API Gateway + Lambda, S3/CloudFront, DynamoDB)
 - Abstraction des services et ajout de l’authentification
+
+## API backend (local)
+- Base URL par défaut: `http://localhost:3000`
+- Override possible via variables d’environnement:
+	- Web/Next: `NEXT_PUBLIC_API_BASE_URL`
+	- Expo: `EXPO_PUBLIC_API_BASE_URL`
