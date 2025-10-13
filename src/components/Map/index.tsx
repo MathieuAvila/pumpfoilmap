@@ -6,5 +6,5 @@ export type MapProps = {
 
 // Platform-specific implementations will be resolved by React Native bundler
 // Map.native.tsx -> iOS/Android, Map.web.tsx -> Web
-import Map from './Map';
+import Map from './Map.tsx';
 export default Map;

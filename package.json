@@ -23,6 +23,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
+    "@types/react-dom": "^18.3.7",
     "@types/react-native": "^0.73",
     "babel-preset-expo": "^11",
     "typescript": "^5"
