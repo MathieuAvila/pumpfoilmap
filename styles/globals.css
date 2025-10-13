@@ -1,4 +1,4 @@
-html, body, #__next {
+html, body, #root {
   height: 100%;
 }
 body {

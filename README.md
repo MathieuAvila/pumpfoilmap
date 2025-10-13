@@ -1,6 +1,6 @@
 # PumpfoilMap — Prototype Expo + Web
 
-Base de code unique React Native (Expo) pour iOS/Android/Web, avec heatmap cartographique.
+Base de code unique React Native (Expo) pour iOS/Android/Web, avec heatmap cartographique (sans Next.js).
 
 ## Démarrage rapide
 ```bash
@@ -27,6 +27,5 @@ npm run android
 
 ## API backend (local)
 - Base URL par défaut: `http://localhost:3000`
-- Override possible via variables d’environnement:
-	- Web/Next: `NEXT_PUBLIC_API_BASE_URL`
-	- Expo: `EXPO_PUBLIC_API_BASE_URL`
+- Override possible via variable d’environnement Expo:
+	- `EXPO_PUBLIC_API_BASE_URL`

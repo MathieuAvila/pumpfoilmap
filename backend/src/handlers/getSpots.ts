@@ -1,5 +1,5 @@
 import { listSpots } from '../lib/spotsRepo';
-import type { APIGatewayProxyResultV2, APIGatewayProxyEventV2 } from 'aws-lambda';
+import type { APIGatewayProxyStructuredResultV2, APIGatewayProxyEventV2 } from 'aws-lambda';
 import type { BBox } from '../lib/models';
 
 const cors = {
@@ -16,7 +16,9 @@ function parseBBox(bboxStr?: string): BBox | undefined {
   return { minLng, minLat, maxLng, maxLat };
 }
 
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+export const handler = async (
+  event: APIGatewayProxyEventV2
+): Promise<APIGatewayProxyStructuredResultV2> => {
   try {
     const limit = Math.min(Number(event.queryStringParameters?.limit ?? 50), 200);
     const bbox = parseBBox(event.queryStringParameters?.bbox);

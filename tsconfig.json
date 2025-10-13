@@ -24,9 +24,7 @@
     "baseUrl": "."
   },
   "include": [
-    "src",
-    "pages",
-    "next-env.d.ts"
+    "src"
   ],
   "extends": "expo/tsconfig.base"
 }

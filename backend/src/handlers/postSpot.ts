@@ -1,5 +1,5 @@
 import { createSpot } from '../lib/spotsRepo';
-import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
+import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { SpotCreateSchema } from '../lib/models';
 import { randomUUID } from 'crypto';
 
@@ -9,7 +9,9 @@ const cors = {
   'Access-Control-Allow-Methods': 'POST,OPTIONS'
 };
 
-export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
+export const handler = async (
+  event: APIGatewayProxyEventV2
+): Promise<APIGatewayProxyStructuredResultV2> => {
   try {
     const body = event.body ? JSON.parse(event.body) : {};
     const parsed = SpotCreateSchema.safeParse(body);

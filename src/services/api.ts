@@ -1,10 +1,8 @@
 type FetchSpotsParams = { bbox?: string; limit?: number };
 
 function getBaseUrl() {
-  // Next.js web: NEXT_PUBLIC_API_BASE_URL; Expo native/web: EXPO_PUBLIC_API_BASE_URL
-  const envUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || process.env.EXPO_PUBLIC_API_BASE_URL) as
-    | string
-    | undefined;
+  // Expo native/web: EXPO_PUBLIC_API_BASE_URL
+  const envUrl = process.env.EXPO_PUBLIC_API_BASE_URL as string | undefined;
   return envUrl || 'http://localhost:3000';
 }
 

@@ -1,5 +1,3 @@
-import { ScanCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
-import { ddb, TABLE_SPOTS } from './db';
 import type { Spot } from './models';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -31,18 +29,20 @@ async function createInMemory(spot: Spot): Promise<void> {
 
 export async function listSpots(limit: number): Promise<Spot[]> {
   if (USE_INMEMORY) return listFromMemory(limit);
-
-  const res = await ddb.send(
-    new ScanCommand({
-      TableName: TABLE_SPOTS,
-      Limit: limit
-    })
-  );
+  const [{ ddb, TABLE_SPOTS }, { ScanCommand }] = await Promise.all([
+    import('./db'),
+    import('@aws-sdk/lib-dynamodb')
+  ]);
+  const res = await ddb.send(new ScanCommand({ TableName: TABLE_SPOTS, Limit: limit }));
   return (res.Items ?? []) as Spot[];
 }
 
 export async function createSpot(spot: Spot): Promise<void> {
   if (USE_INMEMORY) return createInMemory(spot);
+  const [{ ddb, TABLE_SPOTS }, { PutCommand }] = await Promise.all([
+    import('./db'),
+    import('@aws-sdk/lib-dynamodb')
+  ]);
   await ddb.send(
     new PutCommand({
       TableName: TABLE_SPOTS,

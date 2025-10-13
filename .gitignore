@@ -1,7 +1,6 @@
 node_modules
 .expo
 .expo-shared
-.next
 dist
 build
 web-build

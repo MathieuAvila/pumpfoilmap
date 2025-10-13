@@ -4,6 +4,7 @@ module.exports = {
   transform: {
     '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.json' }]
   },
-  testMatch: ['**/test/**/*.test.ts'],
-  testPathIgnorePatterns: ['/test/e2e.test.ts']
+  testMatch: ['**/test/e2e.test.js'],
+  maxWorkers: 1,
+  testPathIgnorePatterns: ['/dist/', '/dist-cjs/']
 };
