@@ -5,3 +5,4 @@ dist
 build
 web-build
 *.log
+dist-cjs
