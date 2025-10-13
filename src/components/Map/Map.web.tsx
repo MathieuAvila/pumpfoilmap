@@ -2,12 +2,23 @@ import React, { useEffect, useRef } from 'react';
 import maplibregl, { Map as MapLibreMap } from 'maplibre-gl';
 import type { MapProps } from './index';
 
+function ensureCss() {
+  const id = 'maplibre-css';
+  if (document.getElementById(id)) return;
+  const link = document.createElement('link');
+  link.id = id;
+  link.rel = 'stylesheet';
+  link.href = 'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css';
+  document.head.appendChild(link);
+}
+
 export default function MapWeb({ points }: MapProps) {
   const mapRef = useRef<MapLibreMap | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!containerRef.current) return;
+  if (!containerRef.current) return;
+  ensureCss();
     if (!mapRef.current) {
       mapRef.current = new maplibregl.Map({
         container: containerRef.current,

@@ -24,7 +24,7 @@ provider:
             - dynamodb:PutItem
             - dynamodb:Scan
           Resource:
-            - arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:provider.environment.TABLE_SPOTS}
+            - Fn::GetAtt: [SpotsTable, Arn]
 
 functions:
   getSpots:

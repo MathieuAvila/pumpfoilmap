@@ -8,26 +8,23 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "next": "next dev",
-    "build:ssr": "next build && next export",
     "lint": "echo 'no lint configured'"
   },
   "dependencies": {
-    "@rnmapbox/maps": "^11",
+    "@expo/metro-runtime": "~3.2.3",
+    "@rnmapbox/maps": "^10.2.0",
     "expo": "^51",
     "maplibre-gl": "^3",
-    "react": "^18",
-    "react-dom": "^18",
-    "react-native": "0.74",
-    "react-native-web": "^0.19"
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-native": "0.74.3",
+    "react-native-web": "~0.19.10"
   },
   "devDependencies": {
-    "@expo/next-adapter": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-native": "^0.73",
     "babel-preset-expo": "^11",
-    "next": "^14",
     "typescript": "^5"
   }
 }

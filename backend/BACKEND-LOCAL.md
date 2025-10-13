@@ -17,6 +17,12 @@ npm run dev
 # DynamoDB Local: http://localhost:8000
 ```
 
+Alternative sans Java/Docker (in-memory avec seeds)
+```bash
+USE_INMEMORY=true serverless offline --stage dev
+# API: http://localhost:3000
+```
+
 Tester avec curl
 ```bash
 # Lister les spots

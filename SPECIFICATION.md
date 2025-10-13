@@ -17,15 +17,14 @@ Fournir une carte interactive des pontons de pumpfoil, enrichie par les adhéren
 -## Architecture technique
 - **Frontend** :
 -  - Base de code unique en React Native via Expo (iOS/Android/Web)
--  - Web: React Native Web + Next.js (SSR/SEO/PWA)
+-  - Web: React Native Web via Expo (SSR/SEO à étudier plus tard)
 - **Backend** :
 -  - AWS Lambda (serverless) via API Gateway (REST) ou AppSync (GraphQL)
 -  - Stockage des données : AWS DynamoDB (spots, associations, utilisateurs) ou Aurora Serverless
 -  - Stockage des images : AWS S3 (+ CloudFront)
 - **Authentification** : AWS Cognito
 - **Déploiement** :
--  - Web SSR: Next.js sur Lambda (Amplify Hosting SSR, AWS CDK/SST)
--  - Web statique: Next.js export -> S3 + CloudFront (si SSR/SEO non requis)
+-  - Web: Expo Web (hébergement statique S3 + CloudFront)
 -  - Mobile: builds Expo EAS pour iOS/Android
 
 ## Données affichées sur la carte

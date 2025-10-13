@@ -7,8 +7,6 @@ Base de code unique React Native (Expo) pour iOS/Android/Web, avec heatmap carto
 npm install
 # Web (Expo)
 npm run web
-# Web SSR (Next.js)
-npm run next
 # Mobile (environnements natifs requis)
 npm run ios
 npm run android
@@ -21,7 +19,7 @@ npm run android
 ## Structure
 - `src/components/Map/Map.web.tsx` / `Map.native.tsx`: implémentations spécifiques
 - `src/App.tsx`: app RN commune
-- `pages/`: Next.js (SSR)
+  
 
 ## Suite
 - Intégration AWS (Cognito, API Gateway + Lambda, S3/CloudFront, DynamoDB)

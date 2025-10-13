@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "lib": ["dom", "es2019"],
+    "lib": [
+      "dom",
+      "es2019"
+    ],
     "jsx": "react-jsx",
     "module": "esnext",
     "moduleResolution": "node",
@@ -9,10 +12,21 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "react-native": ["node_modules/react-native-web"]
+      "react-native": [
+        "node_modules/react-native-web"
+      ]
     },
-    "types": ["node", "react", "react-dom"],
+    "types": [
+      "node",
+      "react",
+      "react-dom"
+    ],
     "baseUrl": "."
   },
-  "include": ["src", "pages", "next-env.d.ts"]
+  "include": [
+    "src",
+    "pages",
+    "next-env.d.ts"
+  ],
+  "extends": "expo/tsconfig.base"
 }

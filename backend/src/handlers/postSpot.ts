@@ -1,5 +1,4 @@
-import { PutCommand } from '@aws-sdk/lib-dynamodb';
-import { ddb, TABLE_SPOTS } from '../lib/db';
+import { createSpot } from '../lib/spotsRepo';
 import type { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { SpotCreateSchema } from '../lib/models';
 import { randomUUID } from 'crypto';
@@ -30,13 +29,7 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
       ...parsed.data
     };
 
-    await ddb.send(
-      new PutCommand({
-        TableName: TABLE_SPOTS,
-        Item: item,
-        ConditionExpression: 'attribute_not_exists(spotId)'
-      })
-    );
+    await createSpot(item as any);
 
     return {
       statusCode: 201,

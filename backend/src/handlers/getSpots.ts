@@ -1,5 +1,4 @@
-import { ScanCommand } from '@aws-sdk/lib-dynamodb';
-import { ddb, TABLE_SPOTS } from '../lib/db';
+import { listSpots } from '../lib/spotsRepo';
 import type { APIGatewayProxyResultV2, APIGatewayProxyEventV2 } from 'aws-lambda';
 import type { BBox } from '../lib/models';
 
@@ -22,14 +21,7 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     const limit = Math.min(Number(event.queryStringParameters?.limit ?? 50), 200);
     const bbox = parseBBox(event.queryStringParameters?.bbox);
 
-    const res = await ddb.send(
-      new ScanCommand({
-        TableName: TABLE_SPOTS,
-        Limit: limit
-      })
-    );
-
-    let items = (res.Items ?? []) as any[];
+    let items = (await listSpots(limit)) as any[];
 
     if (bbox) {
       items = items.filter(
