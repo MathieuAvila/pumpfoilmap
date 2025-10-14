@@ -14,7 +14,7 @@ const CircleLayer: any = RNMapbox?.CircleLayer ?? Mapbox?.CircleLayer;
 
 Mapbox?.setAccessToken?.(''); // Using MapLibre-compatible style without token if self-hosted; token optional
 
-export default function MapNative({ points }: MapProps) {
+export default function MapNative({ points, onPickLocation, picking }: MapProps) {
   const cameraRef = useRef<any>(null);
   // Convert points to GeoJSON
   const fc = useMemo(() => {
@@ -45,6 +45,11 @@ export default function MapNative({ points }: MapProps) {
             const { features } = e;
             const f = features && features[0];
             if (!f) return;
+            if (picking && onPickLocation) {
+              const coords = (f.geometry as any).coordinates;
+              onPickLocation({ lon: coords[0], lat: coords[1] });
+              return;
+            }
             const isCluster = !!(f.properties && f.properties.cluster);
             if (isCluster) {
               // try to zoom in on cluster

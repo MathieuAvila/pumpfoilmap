@@ -14,7 +14,7 @@ function ensureCss() {
   document.head.appendChild(link);
 }
 
-export default function MapWeb({ points }: MapProps) {
+export default function MapWeb({ points, onPickLocation, picking }: MapProps) {
   const mapRef = useRef<MapLibreMap | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadedRef = useRef<boolean>(false);
@@ -254,6 +254,11 @@ export default function MapWeb({ points }: MapProps) {
         const onPointClick = (e: any) => {
           const feature = e.features && e.features[0];
           if (!feature) return;
+          if (picking && onPickLocation) {
+            const coords = (feature.geometry as any).coordinates.slice();
+            onPickLocation({ lon: coords[0], lat: coords[1] });
+            return;
+          }
           const coordinates = (feature.geometry as any).coordinates.slice();
           const props: any = feature.properties || {};
           const isAssoc = props.type === 'association';
@@ -278,6 +283,13 @@ export default function MapWeb({ points }: MapProps) {
         };
         map.on('click', 'unclustered-point', onPointClick);
         map.on('click', 'unclustered-label', onPointClick);
+        if (picking && onPickLocation) {
+          map.getCanvas().style.cursor = 'crosshair';
+          map.on('click', (e) => {
+            if (!picking) return; // runtime check
+            onPickLocation({ lon: e.lngLat.lng, lat: e.lngLat.lat });
+          });
+        }
         // If future updates were queued before load, apply latest now
         const latest = pendingFCRef.current;
         if (latest) {

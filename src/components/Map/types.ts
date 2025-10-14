@@ -19,4 +19,7 @@ export type HeatPoint = {
 
 export type MapProps = {
   points: HeatPoint[];
+  // Optional: if provided, map will expose a picking mode to select coordinates
+  onPickLocation?: (coords: { lat: number; lon: number }) => void;
+  picking?: boolean; // when true, clicks tap into selection instead of normal popup
 };

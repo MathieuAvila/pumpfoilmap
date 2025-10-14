@@ -90,8 +90,7 @@ export default function App() {
           </View>
           {[
             ['Nom', 'name'],
-            ['Latitude', 'lat'],
-            ['Longitude', 'lng'],
+          // lat/lon now selected on map
             ['Soumis par', 'submittedBy'],
             form.type === 'ponton' && ['Hauteur (m)', 'heightM'],
             form.type === 'ponton' && ['Longueur (m)', 'lengthM'],
@@ -194,6 +193,24 @@ export default function App() {
           <Pressable onPress={() => setShowForm(false)} style={{ marginTop: 24 }}>
             <Text style={{ color: '#0b3d91', textAlign: 'center' }}>← Retour à la carte</Text>
           </Pressable>
+          <View style={{ marginTop: 16, padding: 8, backgroundColor: '#eef', borderRadius: 4 }}>
+            <Text style={{ fontSize: 12, color: '#333' }}>
+              Sélection des coordonnées: utilisez le bouton "Choisir sur la carte" puis cliquez/tapez sur la carte. Les valeurs seront remplies automatiquement.
+            </Text>
+            <View style={{ flexDirection: 'row', marginTop: 8 }}>
+              <Pressable
+                onPress={() => setForm((f: any) => ({ ...f, picking: !f.picking }))}
+                style={{ backgroundColor: form.picking ? '#d9534f' : '#0b3d91', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6, marginRight: 12 }}
+              >
+                <Text style={{ color: 'white', fontWeight: '600' }}>
+                  {form.picking ? 'Terminer sélection' : 'Choisir sur la carte'}
+                </Text>
+              </Pressable>
+              <Text style={{ alignSelf: 'center', color: '#555' }}>
+                {form.lat && form.lng ? `Lat: ${form.lat}  Lon: ${form.lng}` : 'Aucune coordonnée choisie'}
+              </Text>
+            </View>
+          </View>
         </ScrollView>
       ) : loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -201,7 +218,11 @@ export default function App() {
           <Text style={{ marginTop: 8, color: '#666' }}>Chargement des spots…</Text>
         </View>
       ) : (
-        <Map points={points} />
+        <Map
+          points={points}
+          picking={!!form.picking && showForm}
+          onPickLocation={(c: { lat: number; lon: number }) => setForm((f: any) => ({ ...f, lat: c.lat.toFixed(5), lng: c.lon.toFixed(5), picking: false }))}
+        />
       )}
       {(!showForm && !loading) && (
         <View style={{ position: 'absolute', top: 12, right: 12 }}>
