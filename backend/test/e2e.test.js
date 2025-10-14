@@ -100,10 +100,16 @@ describe('E2E (node http wrapper)', () => {
 
   it('POST /spots then GET /spots returns the created item', async () => {
     const payload = {
+      type: 'ponton',
       name: 'E2E Spot',
       lat: 48.9,
       lng: 2.4,
-      description: 'created by e2e'
+      description: 'created by e2e',
+      submittedBy: 'e2e-user',
+      heightM: 1.1,
+      lengthM: 8,
+      access: 'tolere',
+      address: 'Some quay'
     };
 
     const postRes = await axios.post(`${BASE}/spots`, payload, { validateStatus: () => true });
@@ -115,6 +121,9 @@ describe('E2E (node http wrapper)', () => {
     const getRes = await axios.get(`${BASE}/spots`, { validateStatus: () => true });
     expect(getRes.status).toBe(200);
     const { items } = getRes.data;
-    expect(items.find((s) => s.spotId === created.spotId)).toBeTruthy();
+    const found = items.find((s) => s.spotId === created.spotId);
+    expect(found).toBeTruthy();
+    expect(found.name).toBe('E2E Spot');
+    expect(found.description).toBe('created by e2e');
   });
 });

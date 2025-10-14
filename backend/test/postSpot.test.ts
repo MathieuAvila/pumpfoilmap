@@ -19,16 +19,23 @@ describe('POST /spots', () => {
   it('creates a spot', async () => {
     ddb.send.mockResolvedValueOnce({});
     const payload = {
+      type: 'ponton',
       name: 'Spot 1',
       lat: 48.5,
       lng: 2.3,
-      description: 'Nice place'
-    };
+      description: 'Nice place',
+      submittedBy: 'mathieu',
+      heightM: 1.2,
+      lengthM: 10,
+      access: 'autorise',
+      address: 'Quai de la Gare, Paris'
+    } as const;
 
     const res = await handler({ body: JSON.stringify(payload) } as any);
     expect(res.statusCode).toBe(201);
     const body = JSON.parse(res.body as string);
     expect(body.name).toBe('Spot 1');
     expect(body.spotId).toBeDefined();
+    expect(body.submittedBy).toBe('mathieu');
   });
 });

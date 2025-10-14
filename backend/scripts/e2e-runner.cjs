@@ -94,7 +94,18 @@ async function waitForHttp(url, timeoutMs = 30_000) {
     await waitForHttp(`${BASE}/spots`);
 
     // POST
-    const payload = { name: 'E2E Spot', lat: 48.9, lng: 2.4, description: 'created by e2e' };
+    const payload = {
+      type: 'ponton',
+      name: 'E2E Spot',
+      lat: 48.9,
+      lng: 2.4,
+      description: 'created by e2e',
+      submittedBy: 'runner-user',
+      heightM: 1.0,
+      lengthM: 9,
+      access: 'autorise',
+      address: 'Runner quay'
+    };
     const postRes = await axios.post(`${BASE}/spots`, payload, { validateStatus: () => true });
     if (postRes.status !== 201) throw new Error(`POST /spots expected 201, got ${postRes.status}`);
     const created = postRes.data;

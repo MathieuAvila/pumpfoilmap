@@ -1,20 +1,81 @@
-[
-  {
-    "spotId": "seed-1",
-    "name": "Pontoon Alpha",
-    "lat": 48.8566,
-    "lng": 2.3522,
-    "description": "Paris seed",
-    "createdAt": "2025-01-01T00:00:00.000Z",
-    "status": "approved"
-  },
-  {
-    "spotId": "seed-2",
-    "name": "Pontoon Beta",
-    "lat": 43.2965,
-    "lng": 5.3698,
-    "description": "Marseille seed",
-    "createdAt": "2025-01-01T00:00:00.000Z",
-    "status": "approved"
-  }
-]
+{
+  "points": [
+    {
+      "lon": 2.3522,
+      "lat": 48.8566,
+      "weight": 1.0,
+      "type": "ponton",
+      "title": "Ponton Seine (Paris)",
+      "description": "Accès facile sur berge, mise à l'eau protégée.",
+      "address": "Quai de la Tournelle, 75005 Paris",
+      "submittedBy": "demo",
+      "createdAt": "2025-01-05T10:00:00.000Z"
+    },
+    {
+      "lon": -1.5536,
+      "lat": 47.2184,
+      "weight": 0.8,
+      "type": "association",
+      "title": "Foil Nantes Club",
+      "description": "Groupe Facebook de pratiquants locaux.",
+      "url": "https://www.facebook.com/foilnantes",
+      "submittedBy": "julie",
+      "createdAt": "2025-02-01T09:30:00.000Z"
+    },
+    {
+      "lon": -4.4833,
+      "lat": 48.3904,
+      "weight": 0.9,
+      "type": "ponton",
+      "title": "Ponton Brest",
+      "description": "Accès toléré, attention aux marées.",
+      "address": "Port de Commerce, 29200 Brest",
+      "submittedBy": "marc",
+      "createdAt": "2025-03-12T14:15:00.000Z"
+    },
+    {
+      "lon": 5.3698,
+      "lat": 43.2965,
+      "weight": 0.7,
+      "type": "association",
+      "title": "Marseille Foil Group",
+      "description": "Association informelle de foilers.",
+      "url": "https://marseille-foil.example.org",
+      "submittedBy": "amine",
+      "createdAt": "2025-03-20T16:00:00.000Z"
+    },
+    {
+      "lon": 3.0586,
+      "lat": 50.6292,
+      "weight": 0.6,
+      "type": "ponton",
+      "title": "Ponton Lille",
+      "description": "Accès autorisé, longueur 10m.",
+      "address": "Quai du Wault, 59800 Lille",
+      "submittedBy": "luc",
+      "createdAt": "2025-04-02T11:20:00.000Z"
+    },
+    {
+      "lon": -0.5792,
+      "lat": 44.8378,
+      "weight": 0.85,
+      "type": "association",
+      "title": "Bordeaux Foil",
+      "description": "Sorties régulières le week-end.",
+      "url": "https://bordeaux-foil.example.com",
+      "submittedBy": "anaïs",
+      "createdAt": "2025-05-10T08:45:00.000Z"
+    },
+    {
+      "lon": 7.2619,
+      "lat": 43.7102,
+      "weight": 0.95,
+      "type": "ponton",
+      "title": "Ponton Nice",
+      "description": "Accès toléré, zone fréquentée par les baigneurs.",
+      "address": "Quai des États-Unis, 06300 Nice",
+      "submittedBy": "leo",
+      "createdAt": "2025-06-18T13:05:00.000Z"
+    }
+  ]
+}

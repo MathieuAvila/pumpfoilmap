@@ -42,6 +42,11 @@ Tests unitaires
 npm test
 ```
 
+E2E sans dépendances locales (HTTP wrapper en mémoire)
+```bash
+npm run e2e:run
+```
+
 Arrêter DynamoDB Local
 ```bash
 npm run dyn:stop
@@ -50,3 +55,5 @@ npm run dyn:stop
 Notes
 - Aucun identifiant AWS requis en mode local (serverless-offline + dynamodb-local).
 - En cloud, la même config déploie la table et les Lambdas (`serverless deploy`).
+
+Front (Expo) consomme l'API et affiche des marqueurs cliquables avec `name` -> titre et `description` -> description.
