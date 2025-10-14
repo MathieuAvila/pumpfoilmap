@@ -41,6 +41,27 @@ functions:
           path: /spots
           method: post
 
+  submitSpot:
+    handler: src/handlers/submitSpot.handler
+    events:
+      - httpApi:
+          path: /spots/submit
+          method: post
+
+  approveSpot:
+    handler: src/handlers/approveSpot.handler
+    events:
+      - httpApi:
+          path: /spots/{id}/approve
+          method: post
+
+  rejectSpot:
+    handler: src/handlers/rejectSpot.handler
+    events:
+      - httpApi:
+          path: /spots/{id}/reject
+          method: post
+
 resources:
   Resources:
     SpotsTable:
