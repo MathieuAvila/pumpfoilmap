@@ -69,6 +69,31 @@ export default function App() {
         <View style={{ height: 8 }} />
       </View>
       {showForm ? (
+        form.picking ? (
+          <View style={{ flex: 1 }}>
+            <Map
+              points={points}
+              picking={true}
+              onPickLocation={(c: { lat: number; lon: number }) => setForm((f: any) => ({ ...f, lat: c.lat.toFixed(5), lng: c.lon.toFixed(5), picking: false }))}
+            />
+            <View style={{ position: 'absolute', top: 12, left: 12, right: 12 }}>
+              <View style={{ backgroundColor: 'rgba(0,0,0,0.6)', padding: 10, borderRadius: 8 }}>
+                <Text style={{ color: 'white', fontWeight: '600', marginBottom: 4 }}>Sélection des coordonnées</Text>
+                <Text style={{ color: 'white', fontSize: 12, marginBottom: 8 }}>Cliquez / tapez sur la carte pour définir la position du spot.</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <Pressable onPress={() => setForm((f: any) => ({ ...f, picking: false }))} style={{ backgroundColor: '#d9534f', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4 }}>
+                    <Text style={{ color: 'white', fontWeight: '600' }}>Annuler</Text>
+                  </Pressable>
+                  <View>
+                    <Text style={{ color: 'white', fontSize: 12 }}>
+                      {form.lat && form.lng ? `Lat: ${form.lat}  Lon: ${form.lng}` : 'Aucune coordonnée choisie'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </View>
+        ) : (
         <ScrollView style={{ flex: 1, padding: 12 }} contentContainerStyle={{ paddingBottom: 60 }}>
           <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 12 }}>Soumettre un spot</Text>
           <View style={{ flexDirection: 'row', marginBottom: 8 }}>
@@ -199,12 +224,10 @@ export default function App() {
             </Text>
             <View style={{ flexDirection: 'row', marginTop: 8 }}>
               <Pressable
-                onPress={() => setForm((f: any) => ({ ...f, picking: !f.picking }))}
-                style={{ backgroundColor: form.picking ? '#d9534f' : '#0b3d91', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6, marginRight: 12 }}
+                onPress={() => setForm((f: any) => ({ ...f, picking: true }))}
+                style={{ backgroundColor: '#0b3d91', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6, marginRight: 12 }}
               >
-                <Text style={{ color: 'white', fontWeight: '600' }}>
-                  {form.picking ? 'Terminer sélection' : 'Choisir sur la carte'}
-                </Text>
+                <Text style={{ color: 'white', fontWeight: '600' }}>Choisir sur la carte</Text>
               </Pressable>
               <Text style={{ alignSelf: 'center', color: '#555' }}>
                 {form.lat && form.lng ? `Lat: ${form.lat}  Lon: ${form.lng}` : 'Aucune coordonnée choisie'}
@@ -212,6 +235,7 @@ export default function App() {
             </View>
           </View>
         </ScrollView>
+        )
       ) : loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator />
