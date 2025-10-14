@@ -4,7 +4,7 @@
 Fournir une carte interactive des pontons de pumpfoil, enrichie par les adhérents, accessible en tant que site web et applications Android/iOS. L'application doit fonctionner sur AWS Lambda pour l'hébergement des fonctions backend.
 
 ## Fonctionnalités principales
-- **Carte interactive** : Affichage d'une heatmap des spots de pumpfoil et des associations sportives liées.
+- **Carte interactive** : Affichage de spots (marqueurs clusterisés) de pumpfoil et des associations sportives liées.
 - **Ajout et modification de spots** : Les adhérents peuvent proposer de nouveaux spots ou modifier les informations existantes (localisation, description, photos, niveau de difficulté, accessibilité, etc.).
 - **Gestion des associations** : Présentation des associations sportives locales, avec possibilité de les contacter ou de rejoindre leurs activités.
 - **Recherche et filtres** : Recherche par localisation, type de spot, niveau, association, etc.
@@ -28,13 +28,13 @@ Fournir une carte interactive des pontons de pumpfoil, enrichie par les adhéren
 -  - Mobile: builds Expo EAS pour iOS/Android
 
 ## Données affichées sur la carte
-- Spots de pumpfoil (géolocalisation, nom, description, photos, niveau, accessibilité)
+- Spots de pumpfoil (géolocalisation, nom, description, accessibilité, métadonnées)
 - Associations sportives (nom, coordonnées, activités, membres)
-- Heatmap par défaut affichant la densité des spots
+// (heatmap retirée au profit de marqueurs clusterisés dans le prototype actuel)
 
 ## Cartographie et parité multi-plateforme
-- Web: MapLibre GL JS (layer heatmap) avec style public
-- iOS/Android: @rnmapbox/maps (SDK MapLibre/Mapbox) avec HeatmapLayer
+- Web: MapLibre GL JS (style minimal routes + fond ou style complet), clustering GeoJSON
+- iOS/Android: @rnmapbox/maps avec clustering équivalent
 - Abstraction `Map` avec implémentations spécifiques (`Map.web.tsx`, `Map.native.tsx`)
 
 ## Authentification et rôles

@@ -1,10 +1,4 @@
-export type HeatPoint = { lon: number; lat: number; weight?: number };
-
-export type MapProps = {
-  points: HeatPoint[];
-};
-
-// Platform-specific implementations will be resolved by React Native bundler
-// Map.native.tsx -> iOS/Android, Map.web.tsx -> Web
-import Map from './Map.tsx';
-export default Map;
+export { type HeatPoint, type MapProps } from './types';
+// For TypeScript type resolution, point to web implementation by default.
+// At runtime, React Native bundler will pick index.web.ts or index.native.ts.
+export { default } from './index.web';

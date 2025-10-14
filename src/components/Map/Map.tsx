@@ -1,12 +1,12 @@
 import { Platform } from 'react-native';
 
-// Dynamically require the platform-specific implementation
-// to help TypeScript resolve the module in a cross-platform way.
-// On web -> Map.web.tsx, on native -> Map.native.tsx
+// Lazily require only the selected implementation to avoid bundling both
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const Map = Platform.select({
-  web: require('./Map.web').default,
-  default: require('./Map.native').default
-});
+let MapImpl: any;
+if (Platform.OS === 'web') {
+  MapImpl = require('./Map.web').default;
+} else {
+  MapImpl = require('./Map.native').default;
+}
 
-export default Map as any;
+export default MapImpl as any;
