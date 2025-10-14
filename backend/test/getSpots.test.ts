@@ -15,8 +15,8 @@ describe('GET /spots', () => {
   it('returns items and count', async () => {
     ddb.send.mockResolvedValueOnce({
       Items: [
-        { spotId: '1', lat: 48.1, lng: -2.1, name: 'A' },
-        { spotId: '2', lat: 49.1, lng: 2.1, name: 'B' }
+        { spotId: '1', lat: 48.1, lng: -2.1, name: 'A', status: 'approved' },
+        { spotId: '2', lat: 49.1, lng: 2.1, name: 'B', status: 'approved' }
       ]
     });
 
@@ -24,13 +24,14 @@ describe('GET /spots', () => {
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body as string);
     expect(body.count).toBe(2);
+    expect(body.items[0].name).toBe('A');
   });
 
   it('applies bbox filter', async () => {
     ddb.send.mockResolvedValueOnce({
       Items: [
-        { spotId: '1', lat: 48.1, lng: 2.1, name: 'A' },
-        { spotId: '2', lat: 49.1, lng: 10.1, name: 'B' }
+        { spotId: '1', lat: 48.1, lng: 2.1, name: 'A', status: 'approved' },
+        { spotId: '2', lat: 49.1, lng: 10.1, name: 'B', status: 'pending' }
       ]
     });
 

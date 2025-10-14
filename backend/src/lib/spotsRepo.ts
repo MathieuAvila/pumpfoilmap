@@ -27,6 +27,14 @@ async function createInMemory(spot: Spot): Promise<void> {
   memory.unshift(spot);
 }
 
+async function updateStatusInMemory(spotId: string, status: Spot['status']): Promise<Spot | null> {
+  if (!memory) memory = loadSeeds();
+  const idx = memory.findIndex((s) => s.spotId === spotId);
+  if (idx === -1) return null;
+  memory[idx] = { ...memory[idx], status } as Spot;
+  return memory[idx];
+}
+
 export async function listSpots(limit: number): Promise<Spot[]> {
   if (USE_INMEMORY) return listFromMemory(limit);
   const [{ ddb, TABLE_SPOTS }, { ScanCommand }] = await Promise.all([
@@ -50,4 +58,23 @@ export async function createSpot(spot: Spot): Promise<void> {
       ConditionExpression: 'attribute_not_exists(spotId)'
     })
   );
+}
+
+export async function updateSpotStatus(spotId: string, status: Spot['status']): Promise<Spot | null> {
+  if (USE_INMEMORY) return updateStatusInMemory(spotId, status);
+  const [{ ddb, TABLE_SPOTS }, { UpdateCommand }] = await Promise.all([
+    import('./db'),
+    import('@aws-sdk/lib-dynamodb')
+  ]);
+  const res = await ddb.send(
+    new UpdateCommand({
+      TableName: TABLE_SPOTS,
+      Key: { spotId },
+      UpdateExpression: 'SET #s = :s',
+      ExpressionAttributeNames: { '#s': 'status' },
+      ExpressionAttributeValues: { ':s': status },
+      ReturnValues: 'ALL_NEW'
+    })
+  );
+  return (res.Attributes as Spot) || null;
 }

@@ -23,7 +23,10 @@ export const handler = async (
     const limit = Math.min(Number(event.queryStringParameters?.limit ?? 50), 200);
     const bbox = parseBBox(event.queryStringParameters?.bbox);
 
-    let items = (await listSpots(limit)) as any[];
+  let items = (await listSpots(limit)) as any[];
+
+  // Only expose approved spots publicly
+  items = items.filter((s) => s.status === 'approved');
 
     if (bbox) {
       items = items.filter(
