@@ -15,6 +15,11 @@ provider:
     cors: true
   environment:
     TABLE_SPOTS: ${self:service}-${sls:stage}-Spots
+    ADMIN_TOKEN: ${env:ADMIN_TOKEN, 'dev'}
+    # Propagate local toggles into Lambda env
+    USE_INMEMORY: ${env:USE_INMEMORY, ''}
+    DYNAMODB_ENDPOINT: ${env:DYNAMODB_ENDPOINT, ''}
+    PFM_DEBUG: ${env:PFM_DEBUG, ''}
 
   iam:
     role:
@@ -61,6 +66,20 @@ functions:
       - httpApi:
           path: /spots/{id}/reject
           method: post
+
+  adminListPending:
+    handler: src/handlers/adminListPending.handler
+    events:
+      - httpApi:
+          path: /admin/spots/pending
+          method: get
+
+  adminUpdateSpot:
+    handler: src/handlers/adminUpdateSpot.handler
+    events:
+      - httpApi:
+          path: /admin/spots/{id}
+          method: patch
 
 resources:
   Resources:

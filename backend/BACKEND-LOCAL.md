@@ -35,6 +35,13 @@ curl -s "http://localhost:3000/spots?bbox=2.0,48.0,3.0,49.0" | jq
 curl -s -X POST http://localhost:3000/spots \
   -H "Content-Type: application/json" \
   -d '{"name":"Nouveau spot","lat":48.9,"lng":2.4,"description":"test"}' | jq
+
+# Admin (protégé par token Bearer, par défaut `dev` en local)
+curl -s -H "Authorization: Bearer dev" http://localhost:3000/admin/spots/pending | jq
+curl -s -X PATCH http://localhost:3000/admin/spots/s1 \
+  -H "Authorization: Bearer dev" \
+  -H "Content-Type: application/json" \
+  -d '{"moderationNote":"ok","status":"approved"}' | jq
 ```
 
 Tests unitaires
