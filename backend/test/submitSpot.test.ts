@@ -24,7 +24,7 @@ describe('POST /spots/submit', () => {
       lat: 42.1,
       lng: 5.2,
       submittedBy: 'alice',
-      heightM: 1.5,
+        heightCm: 150,
       lengthM: 8,
       access: 'autorise',
       address: 'Quai Test',

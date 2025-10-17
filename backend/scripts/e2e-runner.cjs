@@ -101,7 +101,7 @@ async function waitForHttp(url, timeoutMs = 30_000) {
       lng: 2.4,
       description: 'created by e2e',
       submittedBy: 'runner-user',
-      heightM: 1.0,
+  heightCm: 100,
       lengthM: 9,
       access: 'autorise',
       address: 'Runner quay'

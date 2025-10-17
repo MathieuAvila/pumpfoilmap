@@ -62,7 +62,7 @@ export default function MapNative({ points, onPickLocation, picking }: MapProps)
               const descBase = props.description || '';
               const imageLine = props.imageUrl ? `\n[Image] ${props.imageUrl}` : '';
               const descPonton = props.type === 'ponton'
-                ? `\nHauteur: ${props.heightM ?? '-'} m — Longueur: ${props.lengthM ?? '-'} m\nAccès: ${props.access ?? '-'}`
+                ? `\nHauteur: ${props.heightCm ?? '-'} cm — Longueur: ${props.lengthM ?? '-'} m\nAccès: ${props.access ?? '-'}`
                 : '';
               const desc = `${descBase}${descPonton}${imageLine}`;
               const isAssoc = props.type === 'association';

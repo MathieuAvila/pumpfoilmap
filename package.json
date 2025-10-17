@@ -7,9 +7,10 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web",
+    "web": "expo start --web --port 8081",
     "lint": "echo 'no lint configured'",
-  "test": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",
@@ -22,11 +23,12 @@
     "react-native-web": "~0.19.10"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18.3.7",
     "@types/react-native": "^0.73",
-  "@types/jest": "^29.5.12",
     "babel-preset-expo": "^11",
     "jest": "^29.7.0",
     "jest-expo": "^51.0.3",
@@ -35,6 +37,9 @@
   },
   "jest": {
     "preset": "jest-expo",
-    "testPathIgnorePatterns": ["/node_modules/", "/backend/"]
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/backend/"
+    ]
   }
 }

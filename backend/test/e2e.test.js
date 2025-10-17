@@ -106,7 +106,7 @@ describe('E2E (node http wrapper)', () => {
       lng: 2.4,
       description: 'created by e2e',
       submittedBy: 'e2e-user',
-      heightM: 1.1,
+      heightCm: 110,
       lengthM: 8,
       access: 'tolere',
       address: 'Some quay'

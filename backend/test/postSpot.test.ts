@@ -25,7 +25,7 @@ describe('POST /spots', () => {
       lng: 2.3,
       description: 'Nice place',
       submittedBy: 'mathieu',
-      heightM: 1.2,
+       heightCm: 120,
       lengthM: 10,
       access: 'autorise',
       address: 'Quai de la Gare, Paris'

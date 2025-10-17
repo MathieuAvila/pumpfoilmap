@@ -12,13 +12,19 @@ export default function App() {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showGdpr, setShowGdpr] = useState<boolean>(() => {
+    if (typeof localStorage === 'undefined') return false;
+    return localStorage.getItem('pfm-consent') !== 'ok';
+  });
+  const [admin, setAdmin] = useState<boolean>(false);
   const [form, setForm] = useState<any>({
     type: 'ponton',
     name: '',
     lat: '',
     lng: '',
     submittedBy: '',
-    heightM: '',
+  heightCm: '',
     lengthM: '',
     access: 'autorise',
     address: '',
@@ -26,6 +32,43 @@ export default function App() {
     imageUrl: '',
     contactEmail: ''
   });
+
+  function isValidUrl(u?: string) {
+    if (!u) return true;
+    try {
+      new URL(u);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function isValidEmail(e?: string) {
+    if (!e) return true;
+    return /.+@.+\..+/.test(e);
+  }
+
+  function validateForm(f: any): Record<string, string> {
+    const errs: Record<string, string> = {};
+    if (!f.name?.trim()) errs.name = 'Nom requis';
+    if (!f.submittedBy?.trim()) errs.submittedBy = 'Soumis par requis';
+  const latEmpty = f.lat === '' || f.lat == null;
+  const lngEmpty = f.lng === '' || f.lng == null;
+  const lat = Number(f.lat), lng = Number(f.lng);
+  if (latEmpty || lngEmpty || !Number.isFinite(lat) || !Number.isFinite(lng)) errs.latlng = 'Coordonnées requises';
+    if (f.imageUrl && !isValidUrl(f.imageUrl)) errs.imageUrl = 'URL image invalide';
+    if (!isValidEmail(f.contactEmail)) errs.contactEmail = 'Email invalide';
+    if (f.type === 'ponton') {
+      const h = Number(f.heightCm), l = Number(f.lengthM);
+      if (!(h > 0)) errs.heightCm = 'Hauteur > 0 requise';
+      if (!(l > 0)) errs.lengthM = 'Longueur > 0 requise';
+      if (!f.address?.trim()) errs.address = 'Adresse requise';
+      if (!['autorise', 'tolere'].includes(f.access)) errs.access = 'Accès invalide';
+    } else if (f.type === 'association') {
+      if (f.url && !isValidUrl(f.url)) errs.url = 'URL invalide';
+    }
+    return errs;
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -45,7 +88,7 @@ export default function App() {
             address: s.address,
             submittedBy: s.submittedBy,
             createdAt: s.createdAt,
-            heightM: s.heightM,
+            heightCm: s.heightCm,
             lengthM: s.lengthM,
             access: s.access,
             imageUrl: s.imageUrl
@@ -68,7 +111,36 @@ export default function App() {
         </Text>
         <View style={{ height: 8 }} />
       </View>
-      {showForm ? (
+      {showGdpr && (
+        <View style={{ backgroundColor: '#fffbdd', padding: 10, borderBottomWidth: 1, borderBottomColor: '#e2d69e' }}>
+          <Text style={{ color: '#5d5400' }}>
+            Ce site utilise des cookies/analytiques nécessaires au fonctionnement. En continuant, vous acceptez notre politique de confidentialité.
+          </Text>
+          <View style={{ flexDirection: 'row', marginTop: 8 }}>
+            <Pressable
+              onPress={() => {
+                try { localStorage.setItem('pfm-consent', 'ok'); } catch {}
+                setShowGdpr(false);
+              }}
+              style={{ backgroundColor: '#0b3d91', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, marginRight: 8 }}
+            >
+              <Text style={{ color: 'white', fontWeight: '600' }}>J'accepte</Text>
+            </Pressable>
+          </View>
+        </View>
+      )}
+      {/* Admin toggle minimal (à sécuriser en prod) */}
+      <View style={{ paddingHorizontal: 12, paddingVertical: 6, backgroundColor: '#f7f7f7', borderBottomWidth: 1, borderBottomColor: '#eee' }}>
+        <View style={{ flexDirection: 'row' }}>
+          <Pressable onPress={() => setAdmin(false)} style={{ marginRight: 12 }}>
+            <Text style={{ color: !admin ? '#0b3d91' : '#333', fontWeight: !admin ? '700' as any : '400' }}>Carte</Text>
+          </Pressable>
+          <Pressable onPress={() => setAdmin(true)}>
+            <Text style={{ color: admin ? '#0b3d91' : '#333', fontWeight: admin ? '700' as any : '400' }}>Admin</Text>
+          </Pressable>
+        </View>
+      </View>
+  {!admin && showForm ? (
         form.picking ? (
           <View style={{ flex: 1 }}>
             <Map
@@ -96,75 +168,107 @@ export default function App() {
         ) : (
         <ScrollView style={{ flex: 1, padding: 12 }} contentContainerStyle={{ paddingBottom: 60 }}>
           <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 12 }}>Soumettre un spot</Text>
-          <View style={{ flexDirection: 'row', marginBottom: 8 }}>
-            {(['ponton', 'association'] as const).map((t) => (
-              <Pressable
-                key={t}
-                onPress={() => setForm((f: any) => ({ ...f, type: t }))}
-                style={{
-                  paddingVertical: 6,
-                  paddingHorizontal: 12,
-                  backgroundColor: form.type === t ? '#0b3d91' : '#ddd',
-                  marginRight: 8,
-                  borderRadius: 4
-                }}
-              >
-                <Text style={{ color: form.type === t ? 'white' : '#333' }}>{t}</Text>
-              </Pressable>
-            ))}
-          </View>
-          {[
-            ['Nom', 'name'],
-          // lat/lon now selected on map
-            ['Soumis par', 'submittedBy'],
-            form.type === 'ponton' && ['Hauteur (m)', 'heightM'],
-            form.type === 'ponton' && ['Longueur (m)', 'lengthM'],
-            form.type === 'ponton' && ['Adresse', 'address'],
-            ['Description', 'description'],
-            ['Image URL', 'imageUrl'],
-            ['Email (facultatif)', 'contactEmail'],
-            form.type === 'association' && ['Site (url)', 'url']
-          ].filter(Boolean).map((row: any) => {
-            const [label, key] = row;
-            return (
-              <View key={key} style={{ marginBottom: 10 }}>
-                <Text style={{ fontSize: 12, color: '#555', marginBottom: 4 }}>{label}</Text>
-                <TextInput
-                  value={form[key]}
-                  onChangeText={(v) => setForm((f: any) => ({ ...f, [key]: v }))}
-                  style={{ borderWidth: 1, borderColor: '#bbb', borderRadius: 4, padding: 8 }}
-                  placeholder={label}
-                  autoCapitalize="none"
-                />
-              </View>
-            );
-          })}
-          {form.type === 'ponton' && (
-            <View style={{ marginBottom: 12 }}>
-              <Text style={{ fontSize: 12, color: '#555', marginBottom: 4 }}>Accès</Text>
-              <View style={{ flexDirection: 'row' }}>
-                {(['autorise', 'tolere'] as const).map((a) => (
-                  <Pressable
-                    key={a}
-                    onPress={() => setForm((f: any) => ({ ...f, access: a }))}
-                    style={{
-                      paddingVertical: 6,
-                      paddingHorizontal: 12,
-                      backgroundColor: form.access === a ? '#0b3d91' : '#ddd',
-                      marginRight: 8,
-                      borderRadius: 4
-                    }}
-                  >
-                    <Text style={{ color: form.access === a ? 'white' : '#333' }}>{a}</Text>
-                  </Pressable>
-                ))}
-              </View>
+          {/* Framed container for all form fields */}
+          <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 8, backgroundColor: '#fff', padding: 12, marginBottom: 12 }}>
+            <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+              {(['ponton', 'association'] as const).map((t) => (
+                <Pressable
+                  key={t}
+                  onPress={() => setForm((f: any) => ({ ...f, type: t }))}
+                  style={{
+                    paddingVertical: 6,
+                    paddingHorizontal: 12,
+                    backgroundColor: form.type === t ? '#0b3d91' : '#ddd',
+                    marginRight: 8,
+                    borderRadius: 4
+                  }}
+                >
+                  <Text style={{ color: form.type === t ? 'white' : '#333' }}>{t}</Text>
+                </Pressable>
+              ))}
             </View>
-          )}
-          <Pressable
-            disabled={submitting}
-            onPress={async () => {
+            {[
+              ['Nom', 'name'],
+            // lat/lon now selected on map
+              ['Soumis par', 'submittedBy'],
+              form.type === 'ponton' && ['Hauteur (cm)', 'heightCm'],
+              form.type === 'ponton' && ['Longueur (m)', 'lengthM'],
+              form.type === 'ponton' && ['Adresse', 'address'],
+              ['Description', 'description'],
+              ['Image URL', 'imageUrl'],
+              ['Email (facultatif)', 'contactEmail'],
+              form.type === 'association' && ['Site (url)', 'url']
+            ].filter(Boolean).map((row: any) => {
+              const [label, key] = row;
+              return (
+                <View key={key} style={{ marginBottom: 10 }}>
+                  <Text style={{ fontSize: 12, color: '#555', marginBottom: 4 }}>{label}</Text>
+                  <TextInput
+                    testID={`input-${key}`}
+                    value={form[key]}
+                    onChangeText={(v) => setForm((f: any) => ({ ...f, [key]: v }))}
+                    style={{ borderWidth: 1, borderColor: errors[key] ? 'tomato' : '#bbb', borderRadius: 4, padding: 8 }}
+                    placeholder={label}
+                    autoCapitalize="none"
+                  />
+                  {!!errors[key] && (
+                    <Text testID={`error-${key}`} style={{ color: 'tomato', marginTop: 4, fontSize: 12 }}>{errors[key]}</Text>
+                  )}
+                </View>
+              );
+            })}
+            {form.type === 'ponton' && (
+              <View style={{ marginBottom: 12 }}>
+                <Text style={{ fontSize: 12, color: '#555', marginBottom: 4 }}>Accès</Text>
+                <View style={{ flexDirection: 'row' }}>
+                  {(['autorise', 'tolere'] as const).map((a) => (
+                    <Pressable
+                      key={a}
+                      onPress={() => setForm((f: any) => ({ ...f, access: a }))}
+                      style={{
+                        paddingVertical: 6,
+                        paddingHorizontal: 12,
+                        backgroundColor: form.access === a ? '#0b3d91' : '#ddd',
+                        marginRight: 8,
+                        borderRadius: 4
+                      }}
+                    >
+                      <Text style={{ color: form.access === a ? 'white' : '#333' }}>{a}</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            )}
+            <View style={{ marginTop: 16, padding: 8, backgroundColor: '#eef', borderRadius: 4 }}>
+              <Text style={{ fontSize: 12, color: '#333' }}>
+                Sélection des coordonnées: utilisez le bouton "Choisir sur la carte" puis cliquez/tapez sur la carte. Les valeurs seront remplies automatiquement.
+              </Text>
+              <View style={{ flexDirection: 'row', marginTop: 8 }}>
+                <Pressable testID="btn-choose-on-map"
+                  onPress={() => setForm((f: any) => ({ ...f, picking: true }))}
+                  style={{ backgroundColor: '#0b3d91', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6, marginRight: 12 }}
+                >
+                  <Text style={{ color: 'white', fontWeight: '600' }}>Choisir sur la carte</Text>
+                </Pressable>
+                <Text style={{ alignSelf: 'center', color: '#555' }}>
+                  {form.lat && form.lng ? `Lat: ${form.lat}  Lon: ${form.lng}` : 'Aucune coordonnée choisie'}
+                </Text>
+              </View>
+              {!!errors.latlng && (
+                <Text testID="error-latlng" style={{ color: 'tomato', marginTop: 6, fontSize: 12 }}>{errors.latlng}</Text>
+              )}
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Pressable testID="btn-submit-spot"
+              disabled={submitting}
+              onPress={async () => {
               setSubmitMessage(null);
+              const v = validateForm(form);
+              setErrors(v);
+              if (Object.keys(v).length) {
+                return;
+              }
               setSubmitting(true);
               try {
                 // Build payload
@@ -183,7 +287,8 @@ export default function App() {
                   payload = {
                     ...base,
                     type: 'ponton',
-                    heightM: Number(form.heightM),
+                    // height entered and stored in centimeters
+                    heightCm: Number(form.heightCm),
                     lengthM: Number(form.lengthM),
                     access: form.access,
                     address: form.address
@@ -203,52 +308,44 @@ export default function App() {
               } finally {
                 setSubmitting(false);
               }
-            }}
-            style={{ backgroundColor: '#0b3d91', padding: 12, borderRadius: 6, opacity: submitting ? 0.6 : 1 }}
-          >
-            <Text style={{ textAlign: 'center', color: 'white', fontWeight: '600' }}>
-              {submitting ? 'Envoi…' : 'Soumettre'}
-            </Text>
-          </Pressable>
+              }}
+              style={{ backgroundColor: '#0b3d91', padding: 12, borderRadius: 6, opacity: submitting ? 0.6 : 1, marginRight: 8 }}
+            >
+              <Text style={{ textAlign: 'center', color: 'white', fontWeight: '600' }}>
+                {submitting ? 'Envoi…' : 'Soumettre'}
+              </Text>
+            </Pressable>
+            <Pressable
+              testID="btn-cancel-return"
+              onPress={() => setShowForm(false)}
+              style={{ backgroundColor: '#ddd', paddingVertical: 12, paddingHorizontal: 14, borderRadius: 6 }}
+            >
+              <Text style={{ color: '#333', fontWeight: '600' }}>Retour à la carte</Text>
+            </Pressable>
+          </View>
           {submitMessage && (
             <Text style={{ marginTop: 12, color: submitMessage.startsWith('✅') ? 'green' : 'tomato' }}>
               {submitMessage}
             </Text>
           )}
-          <Pressable onPress={() => setShowForm(false)} style={{ marginTop: 24 }}>
-            <Text style={{ color: '#0b3d91', textAlign: 'center' }}>← Retour à la carte</Text>
-          </Pressable>
-          <View style={{ marginTop: 16, padding: 8, backgroundColor: '#eef', borderRadius: 4 }}>
-            <Text style={{ fontSize: 12, color: '#333' }}>
-              Sélection des coordonnées: utilisez le bouton "Choisir sur la carte" puis cliquez/tapez sur la carte. Les valeurs seront remplies automatiquement.
-            </Text>
-            <View style={{ flexDirection: 'row', marginTop: 8 }}>
-              <Pressable
-                onPress={() => setForm((f: any) => ({ ...f, picking: true }))}
-                style={{ backgroundColor: '#0b3d91', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6, marginRight: 12 }}
-              >
-                <Text style={{ color: 'white', fontWeight: '600' }}>Choisir sur la carte</Text>
-              </Pressable>
-              <Text style={{ alignSelf: 'center', color: '#555' }}>
-                {form.lat && form.lng ? `Lat: ${form.lat}  Lon: ${form.lng}` : 'Aucune coordonnée choisie'}
-              </Text>
-            </View>
-          </View>
+          {/* Bouton de retour déplacé à côté de "Soumettre" */}
         </ScrollView>
         )
-      ) : loading ? (
+  ) : !admin && loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator />
           <Text style={{ marginTop: 8, color: '#666' }}>Chargement des spots…</Text>
         </View>
-      ) : (
+      ) : !admin ? (
         <Map
           points={points}
           picking={!!form.picking && showForm}
           onPickLocation={(c: { lat: number; lon: number }) => setForm((f: any) => ({ ...f, lat: c.lat.toFixed(5), lng: c.lon.toFixed(5), picking: false }))}
         />
+      ) : (
+        <AdminPanel />
       )}
-      {(!showForm && !loading) && (
+      {(!admin && !showForm && !loading) && (
         <View style={{ position: 'absolute', top: 12, right: 12 }}>
           <Pressable
             onPress={() => setShowForm(true)}
@@ -263,6 +360,119 @@ export default function App() {
           <Text style={{ color: 'tomato' }}>{error}</Text>
         </View>
       )}
+    </View>
+  );
+}
+
+function AdminPanel() {
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const size = 20;
+  const start = page * size;
+  const end = start + size;
+  const base = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+  const adminToken = process.env.EXPO_PUBLIC_ADMIN_TOKEN || 'dev';
+
+  async function fetchPending() {
+    try {
+      // Ne pas flash l'écran: on ne touche pas à "loading" si déjà chargé
+      const r = await fetch(`${base}/admin/spots/pending?size=1000`, { headers: { Authorization: `Bearer ${adminToken}` } });
+      const d = await r.json();
+      setItems(d.items || []);
+      // Reset pagination si la liste change
+      setPage(0);
+    } catch (e: any) {
+      setError(String(e));
+    }
+  }
+
+  useEffect(() => {
+    let mounted = true;
+    fetch(`${base}/admin/spots/pending?size=1000`, { headers: { Authorization: `Bearer ${adminToken}` } })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!mounted) return;
+        setItems(d.items || []);
+      })
+      .catch((e) => setError(String(e)))
+      .finally(() => setLoading(false));
+    return () => { mounted = false; };
+  }, []);
+
+  if (loading) return <View style={{ padding: 12 }}><Text>Chargement…</Text></View>;
+  if (error) return <View style={{ padding: 12 }}><Text style={{ color: 'tomato' }}>{error}</Text></View>;
+
+  const pageItems = items.slice(start, end);
+
+  return (
+    <ScrollView style={{ flex: 1, padding: 12 }}>
+      <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 12 }}>Modération — Soumissions en attente</Text>
+      <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 6 }}>
+        <View style={{ flexDirection: 'row', backgroundColor: '#f4f4f4', padding: 8 }}>
+          <Text style={{ width: 120, fontWeight: '600' }}>Date</Text>
+          <Text style={{ width: 140, fontWeight: '600' }}>Nom</Text>
+          <Text style={{ width: 100, fontWeight: '600' }}>Type</Text>
+          <Text style={{ width: 120, fontWeight: '600' }}>Soumis par</Text>
+          <Text style={{ flex: 1, fontWeight: '600' }}>Actions</Text>
+        </View>
+        {pageItems.map((s) => (
+          <AdminRow key={s.spotId} spot={s} onChanged={fetchPending} />
+        ))}
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
+        <Pressable disabled={page===0} onPress={() => setPage((p) => Math.max(0, p-1))} style={{ opacity: page===0?0.5:1, backgroundColor: '#ddd', padding: 8, borderRadius: 4 }}>
+          <Text>Précédent</Text>
+        </Pressable>
+        <Pressable disabled={end>=items.length} onPress={() => setPage((p) => p+1)} style={{ opacity: end>=items.length?0.5:1, backgroundColor: '#ddd', padding: 8, borderRadius: 4 }}>
+          <Text>Suivant</Text>
+        </Pressable>
+      </View>
+    </ScrollView>
+  );
+}
+
+function AdminRow({ spot, onChanged }: { spot: any; onChanged?: () => void }) {
+  const [f, setF] = useState<any>({ ...spot });
+  const [saving, setSaving] = useState(false);
+  const base = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000';
+  const adminToken = process.env.EXPO_PUBLIC_ADMIN_TOKEN || 'dev';
+
+  async function save(status?: 'approved'|'rejected') {
+    setSaving(true);
+    try {
+      const payload = { ...f };
+      if (status) payload.status = status;
+  const res = await fetch(`${base}/admin/spots/${spot.spotId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${adminToken}` }, body: JSON.stringify(payload) });
+      if (!res.ok) throw new Error(String(res.status));
+      onChanged?.();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const dt = new Date(spot.createdAt);
+  const dateStr = `${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}`;
+
+  return (
+    <View style={{ flexDirection: 'row', padding: 8, borderTopWidth: 1, borderTopColor: '#eee', alignItems: 'center' }}>
+      <Text style={{ width: 120 }}>{dateStr}</Text>
+      <TextInput value={f.name} onChangeText={(v) => setF((x:any)=>({ ...x, name:v }))} style={{ width: 140, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+      <TextInput value={f.type} onChangeText={(v) => setF((x:any)=>({ ...x, type:v }))} style={{ width: 100, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+      <TextInput value={f.submittedBy} onChangeText={(v) => setF((x:any)=>({ ...x, submittedBy:v }))} style={{ width: 120, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+      <View style={{ flex:1, flexDirection: 'row', alignItems: 'center' }}>
+        <TextInput placeholder="Note de modération" value={f.moderationNote||''} onChangeText={(v)=> setF((x:any)=>({ ...x, moderationNote:v }))} style={{ flex:1, borderWidth:1, borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 8 }} />
+        <Pressable disabled={saving} onPress={() => save()} style={{ backgroundColor: '#eee', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, marginRight: 6 }}>
+          <Text>Enregistrer</Text>
+        </Pressable>
+        <Pressable disabled={saving} onPress={() => save('approved')} style={{ backgroundColor: '#2ecc71', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, marginRight: 6 }}>
+          <Text style={{ color: 'white' }}>Valider</Text>
+        </Pressable>
+        <Pressable disabled={saving} onPress={() => save('rejected')} style={{ backgroundColor: '#e74c3c', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4 }}>
+          <Text style={{ color: 'white' }}>Refuser</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }

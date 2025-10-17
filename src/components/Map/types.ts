@@ -9,7 +9,7 @@ export type HeatPoint = {
   address?: string;
   submittedBy?: string;
   createdAt?: string;
-  heightM?: number;
+  heightCm?: number;
   lengthM?: number;
   access?: 'autorise' | 'tolere';
   imageUrl?: string; // external image displayed in popup

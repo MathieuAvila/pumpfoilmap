@@ -14,7 +14,8 @@ const SpotBase = z.object({
 // Ponton specific
 const PontonCreateSchema = SpotBase.extend({
   type: z.literal('ponton'),
-  heightM: z.number().positive(),
+  // store height in centimeters (cm)
+  heightCm: z.number().positive(),
   lengthM: z.number().positive(),
   access: z.enum(['autorise', 'tolere']),
   address: z.string().min(1)
@@ -39,7 +40,8 @@ export const SpotSchema = z.intersection(
   z.object({
     spotId: z.string(),
     createdAt: z.string(),
-    status: z.enum(['pending', 'approved', 'rejected']).default('pending')
+    status: z.enum(['pending', 'approved', 'rejected']).default('pending'),
+    moderationNote: z.string().optional()
   })
 );
 

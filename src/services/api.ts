@@ -24,8 +24,10 @@ export type SubmitSpotInput =
       lat: number;
       lng: number;
       submittedBy: string;
-      heightM: number;
-      lengthM: number;
+    // Height in centimeters (cm)
+    heightCm: number;
+  // Length in meters (m)
+  lengthM: number;
       access: 'autorise' | 'tolere';
       address: string;
       description?: string;

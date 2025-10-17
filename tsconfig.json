@@ -7,8 +7,8 @@
     ],
     "jsx": "react-jsx",
     "module": "esnext",
-  "moduleResolution": "node",
-  "allowImportingTsExtensions": true,
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
@@ -20,7 +20,10 @@
     "types": [
       "node",
       "react",
-      "react-dom"
+      "react-dom",
+      "jest",
+      "node",
+      "@playwright/test"
     ],
     "baseUrl": "."
   },
