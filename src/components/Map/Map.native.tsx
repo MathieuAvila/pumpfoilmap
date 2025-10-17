@@ -3,7 +3,7 @@ import { View, StyleSheet, Alert, Linking, Platform } from 'react-native';
 import type { MapProps } from './types';
 
 // Load @rnmapbox/maps in a way that's friendly to TS typings across versions
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// Using require is recommended by @rnmapbox/maps docs for RN to avoid bundling mismatch
 const RNMapbox = require('@rnmapbox/maps');
 const Mapbox: any = RNMapbox?.default ?? RNMapbox;
 const MapView: any = RNMapbox?.MapView ?? Mapbox?.MapView;

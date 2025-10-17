@@ -193,7 +193,7 @@ async function updateFieldsInMemory(spotId: string, patch: Partial<Spot>): Promi
 
 export async function updateSpotFields(spotId: string, patch: Partial<Spot>): Promise<Spot | null> {
   if (USE_INMEMORY) return updateFieldsInMemory(spotId, patch);
-  const [{ ddb, TABLE_SPOTS, ensureSpotsTable }, { UpdateCommand, GetCommand }] = await Promise.all([
+  const [{ ddb, TABLE_SPOTS, ensureSpotsTable }, { UpdateCommand }] = await Promise.all([
     import('./db'),
     import('@aws-sdk/lib-dynamodb')
   ]);

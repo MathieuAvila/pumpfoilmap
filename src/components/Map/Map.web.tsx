@@ -350,7 +350,6 @@ export default function MapWeb({ points, onPickLocation, picking }: MapProps) {
                 if (features.length) {
                   onPointClick({ features });
                 }
-              // eslint-disable-next-line no-empty
               } catch {}
             },
             pickAt(lon: number, lat: number) {

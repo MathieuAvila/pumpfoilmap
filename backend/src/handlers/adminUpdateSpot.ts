@@ -1,5 +1,5 @@
 import type { APIGatewayProxyStructuredResultV2, APIGatewayProxyEventV2 } from 'aws-lambda';
-import { SpotSchema, type Spot } from '../lib/models';
+// import { SpotSchema, type Spot } from '../lib/models';
 import { updateSpotFields } from '../lib/spotsRepo';
 
 const cors = {

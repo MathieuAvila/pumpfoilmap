@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Install backend deps
+        working-directory: backend
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run unit tests (frontend)
+        run: npm test --silent
+
+      - name: Run unit tests (backend)
+        working-directory: backend
+        run: npm test --silent
+
+      - name: Backend build
+        working-directory: backend
+        run: npm run build --silent
+
+      - name: Security audit (root)
+        run: npm audit --audit-level=moderate || true
+
+      - name: Security audit (backend)
+        working-directory: backend
+        run: npm audit --audit-level=moderate || true
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: E2E tests (Playwright)
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:8081
+        run: npx playwright test

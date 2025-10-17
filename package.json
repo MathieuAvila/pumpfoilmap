@@ -8,7 +8,9 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web --port 8081",
-    "lint": "echo 'no lint configured'",
+  "lint": "eslint src backend/src backend/test tests App.tsx --ext .ts,.tsx,.js,.jsx --max-warnings=0 --no-warn-ignored",
+    "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p backend/tsconfig.json --noEmit",
     "test": "jest --passWithNoTests",
     "test:e2e": "playwright test"
   },
@@ -23,13 +25,22 @@
     "react-native-web": "~0.19.10"
   },
   "devDependencies": {
+    "@eslint/js": "^9.11.1",
     "@playwright/test": "^1.56.0",
     "@types/jest": "^29.5.12",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18.3.7",
     "@types/react-native": "^0.73",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "@typescript-eslint/utils": "^8.7.0",
+    "@typescript-eslint/types": "^8.7.0",
     "babel-preset-expo": "^11",
+    "eslint": "^9.11.1",
+    "eslint-plugin-react": "^7.37.1",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "typescript-eslint": "^8.7.0",
     "jest": "^29.7.0",
     "jest-expo": "^51.0.3",
     "react-test-renderer": "18.2.0",
@@ -39,7 +50,8 @@
     "preset": "jest-expo",
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/backend/"
+      "/backend/",
+      "/tests/e2e/"
     ]
   }
 }
