@@ -4,6 +4,8 @@ Règle: tout code doit être accompagné d'un test unitaire et d'un test E2E.
 
 Règle: chaque changement doit passer le lint (npm run lint) sans avertissement ni erreur.
 
+Règle: chaque changement doit faire passer tous les tests (npm test et npm run test:e2e).
+
 - Frontend
   - src/App.tsx
   - src/components/Map/Map.web.tsx
