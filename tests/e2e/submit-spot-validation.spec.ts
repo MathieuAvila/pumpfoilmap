@@ -2,9 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Validation formulaire soumission', () => {
   test('affiche erreurs requis et les retire après correction', async ({ page }) => {
-    await page.goto('/');
-    // Ouvrir formulaire
-    await page.getByText('+ Spot').click();
+  await page.goto('/');
+  // Ouvrir formulaire (nouveau bouton)
+  await page.getByTestId('btn-add-ponton').click();
     // Type par défaut: ponton
 
     // 1) Tentative de soumission vide -> erreurs

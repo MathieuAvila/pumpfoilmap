@@ -346,12 +346,26 @@ export default function App() {
         <AdminPanel />
       )}
       {(!admin && !showForm && !loading) && (
-        <View style={{ position: 'absolute', top: 12, right: 12 }}>
+        <View style={{ position: 'absolute', top: 12, right: 12, flexDirection: 'row' }}>
           <Pressable
-            onPress={() => setShowForm(true)}
+            testID="btn-add-ponton"
+            onPress={() => {
+              setForm((f: any) => ({ ...f, type: 'ponton' }));
+              setShowForm(true);
+            }}
+            style={{ backgroundColor: '#0b3d91', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, marginRight: 8 }}
+          >
+            <Text style={{ color: 'white', fontWeight: '600' }}>Ajouter un ponton</Text>
+          </Pressable>
+          <Pressable
+            testID="btn-add-association"
+            onPress={() => {
+              setForm((f: any) => ({ ...f, type: 'association' }));
+              setShowForm(true);
+            }}
             style={{ backgroundColor: '#0b3d91', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4 }}
           >
-            <Text style={{ color: 'white', fontWeight: '600' }}>+ Spot</Text>
+            <Text style={{ color: 'white', fontWeight: '600' }}>Ajouter une association</Text>
           </Pressable>
         </View>
       )}

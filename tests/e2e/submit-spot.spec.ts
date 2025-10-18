@@ -2,10 +2,9 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Soumission d\'une proposition', () => {
   test('3/ soumission formulaire ponton minimal', async ({ page }) => {
-    await page.goto('/');
-    // Ouvrir formulaire
-    await page.getByText('+ Spot').click();
-    await page.getByText('ponton').click();
+  await page.goto('/');
+  // Ouvrir formulaire (ponton présélectionné)
+  await page.getByTestId('btn-add-ponton').click();
     // Choisir coords sur la carte (ouvre mode picking)
   await page.locator('[data-testid="btn-choose-on-map"]').click();
   // Attendre l'injection des helpers map et simuler
