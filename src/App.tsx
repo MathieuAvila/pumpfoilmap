@@ -368,15 +368,14 @@ function AdminPanel() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
+  const [pageAssoc, setPageAssoc] = useState(0);
+  const [pagePonton, setPagePonton] = useState(0);
   const [filter, setFilter] = useState('');
   const [selectOnMap, setSelectOnMap] = useState(false);
   const [mapSelection, setMapSelection] = useState<any | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all'|'pending'|'approved'|'rejected'>('pending');
   const size = 20;
-  const start = page * size;
-  const end = start + size;
   const base = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000';
   const adminToken = process.env.EXPO_PUBLIC_ADMIN_TOKEN || 'dev';
 
@@ -387,7 +386,8 @@ function AdminPanel() {
       const d = await r.json();
       setItems(d.items || []);
       // Reset pagination si la liste change
-      setPage(0);
+      setPageAssoc(0);
+      setPagePonton(0);
     } catch (e: any) {
       setError(String(e));
     }
@@ -417,7 +417,14 @@ function AdminPanel() {
           .some((v) => String(v).toLowerCase().includes(normalized))
       )
     : items;
-  const pageItems = filtered.slice(start, end);
+  const assoc = filtered.filter((s) => s.type === 'association');
+  const pontons = filtered.filter((s) => s.type === 'ponton');
+  const startA = pageAssoc * size;
+  const endA = startA + size;
+  const startP = pagePonton * size;
+  const endP = startP + size;
+  const pageAssocItems = assoc.slice(startA, endA);
+  const pagePontonItems = pontons.slice(startP, endP);
 
   return (
     <ScrollView style={{ flex: 1, padding: 12 }}>
@@ -454,11 +461,13 @@ function AdminPanel() {
               if (sel && sel.d < 0.1) {
                 setMapSelection(sel.s);
                 setSelectedId(sel.s.spotId);
-                // Center the table pagination on the selected row
-                const idx = items.findIndex((x:any) => x.spotId === sel.s.spotId);
-                if (idx >= 0) {
-                  const newPage = Math.floor(idx / size);
-                  setPage(newPage);
+                // Center the correct table pagination on the selected row
+                if (sel.s.type === 'association') {
+                  const idx = assoc.findIndex((x:any) => x.spotId === sel.s.spotId);
+                  if (idx >= 0) setPageAssoc(Math.floor(idx / size));
+                } else if (sel.s.type === 'ponton') {
+                  const idx = pontons.findIndex((x:any) => x.spotId === sel.s.spotId);
+                  if (idx >= 0) setPagePonton(Math.floor(idx / size));
                 }
               }
             }}
@@ -470,23 +479,56 @@ function AdminPanel() {
           </View>
         </View>
       )}
+      {/* Associations table */}
+      <Text style={{ fontSize: 16, fontWeight: '600', marginTop: 8, marginBottom: 6 }}>Associations</Text>
       <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 6 }}>
         <View style={{ flexDirection: 'row', backgroundColor: '#f4f4f4', padding: 8 }}>
-          <Text style={{ width: 120, fontWeight: '600' }}>Date</Text>
-          <Text style={{ width: 140, fontWeight: '600' }}>Nom</Text>
-          <Text style={{ width: 100, fontWeight: '600' }}>Type</Text>
+          <Text style={{ width: 140, fontWeight: '600' }}>Date</Text>
+          <Text style={{ width: 180, fontWeight: '600' }}>Nom</Text>
+          <Text style={{ width: 200, fontWeight: '600' }}>URL</Text>
           <Text style={{ width: 120, fontWeight: '600' }}>Soumis par</Text>
-          <Text style={{ flex: 1, fontWeight: '600' }}>Actions</Text>
+          <Text style={{ width: 90, fontWeight: '600' }}>lat</Text>
+          <Text style={{ width: 90, fontWeight: '600' }}>lng</Text>
+          <Text style={{ flex: 1, fontWeight: '600' }}>Description</Text>
+          <Text style={{ width: 240, fontWeight: '600' }}>Actions</Text>
         </View>
-        {pageItems.map((s) => (
+        {pageAssocItems.map((s) => (
           <AdminRow key={s.spotId} spot={s} onChanged={fetchPending} selected={selectedId === s.spotId} />
         ))}
       </View>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
-        <Pressable disabled={page===0} onPress={() => setPage((p) => Math.max(0, p-1))} style={{ opacity: page===0?0.5:1, backgroundColor: '#ddd', padding: 8, borderRadius: 4 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+        <Pressable disabled={pageAssoc===0} onPress={() => setPageAssoc((p) => Math.max(0, p-1))} style={{ opacity: pageAssoc===0?0.5:1, backgroundColor: '#ddd', padding: 8, borderRadius: 4 }}>
           <Text>Précédent</Text>
         </Pressable>
-        <Pressable disabled={end>=filtered.length} onPress={() => setPage((p) => p+1)} style={{ opacity: end>=filtered.length?0.5:1, backgroundColor: '#ddd', padding: 8, borderRadius: 4 }}>
+        <Pressable disabled={endA>=assoc.length} onPress={() => setPageAssoc((p) => p+1)} style={{ opacity: endA>=assoc.length?0.5:1, backgroundColor: '#ddd', padding: 8, borderRadius: 4 }}>
+          <Text>Suivant</Text>
+        </Pressable>
+      </View>
+
+      {/* Pontons table */}
+      <Text style={{ fontSize: 16, fontWeight: '600', marginTop: 14, marginBottom: 6 }}>Pontons</Text>
+      <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 6 }}>
+        <View style={{ flexDirection: 'row', backgroundColor: '#f4f4f4', padding: 8 }}>
+          <Text style={{ width: 140, fontWeight: '600' }}>Date</Text>
+          <Text style={{ width: 180, fontWeight: '600' }}>Nom</Text>
+          <Text style={{ width: 100, fontWeight: '600' }}>Hauteur (cm)</Text>
+          <Text style={{ width: 110, fontWeight: '600' }}>Longueur (m)</Text>
+          <Text style={{ width: 110, fontWeight: '600' }}>Accès</Text>
+          <Text style={{ width: 200, fontWeight: '600' }}>Adresse</Text>
+          <Text style={{ width: 90, fontWeight: '600' }}>lat</Text>
+          <Text style={{ width: 90, fontWeight: '600' }}>lng</Text>
+          <Text style={{ flex: 1, fontWeight: '600' }}>Description</Text>
+          <Text style={{ width: 240, fontWeight: '600' }}>Actions</Text>
+        </View>
+        {pagePontonItems.map((s) => (
+          <AdminRow key={s.spotId} spot={s} onChanged={fetchPending} selected={selectedId === s.spotId} />
+        ))}
+      </View>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+        <Pressable disabled={pagePonton===0} onPress={() => setPagePonton((p) => Math.max(0, p-1))} style={{ opacity: pagePonton===0?0.5:1, backgroundColor: '#ddd', padding: 8, borderRadius: 4 }}>
+          <Text>Précédent</Text>
+        </Pressable>
+        <Pressable disabled={endP>=pontons.length} onPress={() => setPagePonton((p) => p+1)} style={{ opacity: endP>=pontons.length?0.5:1, backgroundColor: '#ddd', padding: 8, borderRadius: 4 }}>
           <Text>Suivant</Text>
         </Pressable>
       </View>
@@ -516,46 +558,68 @@ function AdminRow({ spot, onChanged, selected }: { spot: any; onChanged?: () => 
   const dt = new Date(spot.createdAt);
   const dateStr = `${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}`;
 
-  return (
-    <View style={{ flexDirection: 'row', padding: 8, borderTopWidth: 1, borderTopColor: '#eee', alignItems: 'center', backgroundColor: selected ? '#eef7ff' : 'transparent' }}>
-      <Text style={{ width: 120 }}>{dateStr}</Text>
-      <TextInput value={f.name} onChangeText={(v) => setF((x:any)=>({ ...x, name:v }))} style={{ width: 140, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
-      <TextInput value={f.type} onChangeText={(v) => setF((x:any)=>({ ...x, type:v }))} style={{ width: 100, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
-      <TextInput value={f.submittedBy} onChangeText={(v) => setF((x:any)=>({ ...x, submittedBy:v }))} style={{ width: 120, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
-      <View style={{ flex:1, flexDirection: 'row', alignItems: 'center' }}>
+  const Actions = (
+    <>
+      <Pressable disabled={saving} onPress={() => save()} style={{ backgroundColor: '#eee', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, marginRight: 6 }}>
+        <Text>Enregistrer</Text>
+      </Pressable>
+      <Pressable disabled={saving} onPress={() => save('approved')} style={{ backgroundColor: '#2ecc71', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, marginRight: 6 }}>
+        <Text style={{ color: 'white' }}>Valider</Text>
+      </Pressable>
+      <Pressable disabled={saving} onPress={() => save('rejected')} style={{ backgroundColor: '#e74c3c', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4 }}>
+        <Text style={{ color: 'white' }}>Refuser</Text>
+      </Pressable>
+      <Pressable
+        disabled={deleting}
+        onPress={async () => {
+          const ok = typeof window !== 'undefined' && typeof window.confirm === 'function' ? window.confirm('Supprimer ce spot ?') : false;
+          if (!ok) return;
+          setDeleting(true);
+          try {
+            const res = await fetch(`${base}/admin/spots/${spot.spotId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${adminToken}` } });
+            if (!res.ok && res.status !== 204) throw new Error(String(res.status));
+            onChanged?.();
+          } catch {
+            // ignore minimal UI
+          } finally {
+            setDeleting(false);
+          }
+        }}
+        style={{ backgroundColor: '#c0392b', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, marginLeft: 6 }}
+      >
+        <Text style={{ color: 'white' }}>{deleting ? 'Suppression…' : 'Supprimer'}</Text>
+      </Pressable>
+    </>
+  );
+
+  if (f.type === 'association') {
+    return (
+      <View style={{ flexDirection: 'row', padding: 8, borderTopWidth: 1, borderTopColor: '#eee', alignItems: 'center', backgroundColor: selected ? '#eef7ff' : 'transparent' }}>
+        <Text style={{ width: 140 }}>{dateStr}</Text>
+        <TextInput value={f.name} onChangeText={(v) => setF((x:any)=>({ ...x, name:v }))} style={{ width: 180, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+        <TextInput placeholder="URL" value={f.url || ''} onChangeText={(v) => setF((x:any)=>({ ...x, url:v }))} style={{ width: 200, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+        <TextInput value={f.submittedBy || ''} onChangeText={(v) => setF((x:any)=>({ ...x, submittedBy:v }))} style={{ width: 120, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
         <TextInput placeholder="lat" value={String(f.lat ?? '')} onChangeText={(v)=> setF((x:any)=>({ ...x, lat: v }))} style={{ width: 90, borderWidth:1, borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
         <TextInput placeholder="lng" value={String(f.lng ?? '')} onChangeText={(v)=> setF((x:any)=>({ ...x, lng: v }))} style={{ width: 90, borderWidth:1, borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
         <TextInput placeholder="Description" value={f.description||''} onChangeText={(v)=> setF((x:any)=>({ ...x, description:v }))} style={{ flex:1, borderWidth:1, borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 8 }} />
-        <Pressable disabled={saving} onPress={() => save()} style={{ backgroundColor: '#eee', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, marginRight: 6 }}>
-          <Text>Enregistrer</Text>
-        </Pressable>
-        <Pressable disabled={saving} onPress={() => save('approved')} style={{ backgroundColor: '#2ecc71', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, marginRight: 6 }}>
-          <Text style={{ color: 'white' }}>Valider</Text>
-        </Pressable>
-        <Pressable disabled={saving} onPress={() => save('rejected')} style={{ backgroundColor: '#e74c3c', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4 }}>
-          <Text style={{ color: 'white' }}>Refuser</Text>
-        </Pressable>
-        <Pressable
-          disabled={deleting}
-          onPress={async () => {
-            const ok = typeof window !== 'undefined' && typeof window.confirm === 'function' ? window.confirm('Supprimer ce spot ?') : false;
-            if (!ok) return;
-            setDeleting(true);
-            try {
-              const res = await fetch(`${base}/admin/spots/${spot.spotId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${adminToken}` } });
-              if (!res.ok && res.status !== 204) throw new Error(String(res.status));
-              onChanged?.();
-            } catch {
-              // ignore minimal UI
-            } finally {
-              setDeleting(false);
-            }
-          }}
-          style={{ backgroundColor: '#c0392b', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, marginLeft: 6 }}
-        >
-          <Text style={{ color: 'white' }}>{deleting ? 'Suppression…' : 'Supprimer'}</Text>
-        </Pressable>
+        <View style={{ width: 240, flexDirection: 'row', flexWrap: 'wrap' }}>{Actions}</View>
       </View>
+    );
+  }
+
+  // Ponton default
+  return (
+    <View style={{ flexDirection: 'row', padding: 8, borderTopWidth: 1, borderTopColor: '#eee', alignItems: 'center', backgroundColor: selected ? '#eef7ff' : 'transparent' }}>
+      <Text style={{ width: 140 }}>{dateStr}</Text>
+      <TextInput value={f.name} onChangeText={(v) => setF((x:any)=>({ ...x, name:v }))} style={{ width: 180, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+      <TextInput placeholder="Hauteur (cm)" value={String(f.heightCm ?? '')} onChangeText={(v) => setF((x:any)=>({ ...x, heightCm:v }))} style={{ width: 100, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+      <TextInput placeholder="Longueur (m)" value={String(f.lengthM ?? '')} onChangeText={(v) => setF((x:any)=>({ ...x, lengthM:v }))} style={{ width: 110, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+      <TextInput placeholder="Accès" value={f.access || ''} onChangeText={(v) => setF((x:any)=>({ ...x, access:v }))} style={{ width: 110, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+      <TextInput placeholder="Adresse" value={f.address || ''} onChangeText={(v) => setF((x:any)=>({ ...x, address:v }))} style={{ width: 200, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+      <TextInput placeholder="lat" value={String(f.lat ?? '')} onChangeText={(v)=> setF((x:any)=>({ ...x, lat: v }))} style={{ width: 90, borderWidth:1, borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+      <TextInput placeholder="lng" value={String(f.lng ?? '')} onChangeText={(v)=> setF((x:any)=>({ ...x, lng: v }))} style={{ width: 90, borderWidth:1, borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+      <TextInput placeholder="Description" value={f.description||''} onChangeText={(v)=> setF((x:any)=>({ ...x, description:v }))} style={{ flex:1, borderWidth:1, borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 8 }} />
+      <View style={{ width: 240, flexDirection: 'row', flexWrap: 'wrap' }}>{Actions}</View>
     </View>
   );
 }
