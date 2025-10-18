@@ -355,7 +355,7 @@ export default function App() {
             }}
             style={{ backgroundColor: '#0b3d91', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, marginRight: 8 }}
           >
-            <Text style={{ color: 'white', fontWeight: '600' }}>Ajouter un ponton</Text>
+            <Text style={{ color: 'white', fontWeight: '600' }}>Proposer un nouveau ponton</Text>
           </Pressable>
           <Pressable
             testID="btn-add-association"
@@ -365,7 +365,7 @@ export default function App() {
             }}
             style={{ backgroundColor: '#0b3d91', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4 }}
           >
-            <Text style={{ color: 'white', fontWeight: '600' }}>Ajouter une association</Text>
+            <Text style={{ color: 'white', fontWeight: '600' }}>Proposer une nouvelle association</Text>
           </Pressable>
         </View>
       )}
