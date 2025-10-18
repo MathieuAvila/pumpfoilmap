@@ -2,6 +2,8 @@ Règle: ne jamais faire de git push. Seul le mainteneur pousse sur le dépôt di
 
 Règle: tout code doit être accompagné d'un test unitaire et d'un test E2E.
 
+Règle: chaque changement doit passer le lint (npm run lint) sans avertissement ni erreur.
+
 - Frontend
   - src/App.tsx
   - src/components/Map/Map.web.tsx

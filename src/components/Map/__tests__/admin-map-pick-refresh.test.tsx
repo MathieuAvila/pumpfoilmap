@@ -5,7 +5,7 @@ import { act } from 'react-dom/test-utils';
 // Mock maplibre-gl to avoid WebGL in Jest
 jest.mock('maplibre-gl', () => {
   class Map {
-    private handlers: Record<string, Function[]> = {};
+    private handlers: Record<string, Array<(...args: any[]) => void>> = {};
     constructor(_: any) {}
     on(event: string, cb: any) {
       (this.handlers[event] ||= []).push(cb);
