@@ -1,3 +1,5 @@
+Règle: ne jamais faire de git push. Seul le mainteneur pousse sur le dépôt distant.
+
 Règle: tout code doit être accompagné d'un test unitaire et d'un test E2E.
 
 - Frontend
