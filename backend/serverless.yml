@@ -28,6 +28,7 @@ provider:
           Action:
             - dynamodb:PutItem
             - dynamodb:Scan
+            - dynamodb:DeleteItem
           Resource:
             - Fn::GetAtt: [SpotsTable, Arn]
 
@@ -80,6 +81,20 @@ functions:
       - httpApi:
           path: /admin/spots/{id}
           method: patch
+
+  adminDeleteSpot:
+    handler: src/handlers/adminDeleteSpot.handler
+    events:
+      - httpApi:
+          path: /admin/spots/{id}
+          method: delete
+
+  adminListSpots:
+    handler: src/handlers/adminListSpots.handler
+    events:
+      - httpApi:
+          path: /admin/spots
+          method: get
 
 resources:
   Resources:

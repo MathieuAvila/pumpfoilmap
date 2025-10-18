@@ -19,6 +19,13 @@ export default function MapWeb({ points, onPickLocation, picking }: MapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const loadedRef = useRef<boolean>(false);
   const pendingFCRef = useRef<any | null>(null);
+  // Keep latest props in refs for stable event handlers
+  const pickRef = useRef<boolean>(!!picking);
+  const cbRef = useRef<typeof onPickLocation | undefined>(onPickLocation);
+  useEffect(() => {
+    pickRef.current = !!picking;
+    cbRef.current = onPickLocation;
+  }, [picking, onPickLocation]);
   // minimal mode removed; always single style
 
   // Lightweight test helpers (fallback if map style never loads in CI)
@@ -59,12 +66,11 @@ export default function MapWeb({ points, onPickLocation, picking }: MapProps) {
         root.appendChild(pop);
       };
     }
-    if (!g.PFM_TEST.pickAt) {
-      g.PFM_TEST.pickAt = (lon: number, lat: number) => {
-        if (onPickLocation) onPickLocation({ lon, lat });
-      };
-    }
-  }, [points, onPickLocation]);
+    // Always use latest callback via ref
+    g.PFM_TEST.pickAt = (lon: number, lat: number) => {
+      if (cbRef.current) cbRef.current({ lon, lat });
+    };
+  }, [points]);
 
   function toFeatureCollection(pts: MapProps['points']) {
     const features = pts.map((p, i) => ({
@@ -299,9 +305,9 @@ export default function MapWeb({ points, onPickLocation, picking }: MapProps) {
         const onPointClick = (e: any) => {
           const feature = e.features && e.features[0];
           if (!feature) return;
-          if (picking && onPickLocation) {
+          if (pickRef.current && cbRef.current) {
             const coords = (feature.geometry as any).coordinates.slice();
-            onPickLocation({ lon: coords[0], lat: coords[1] });
+            cbRef.current({ lon: coords[0], lat: coords[1] });
             return;
           }
           const coordinates = (feature.geometry as any).coordinates.slice();
@@ -332,11 +338,11 @@ export default function MapWeb({ points, onPickLocation, picking }: MapProps) {
             map.on('click', layerId, onPointClick);
           }
         });
-        if (picking && onPickLocation) {
+        if (pickRef.current && cbRef.current) {
           map.getCanvas().style.cursor = 'crosshair';
           map.on('click', (e) => {
-            if (!picking) return; // runtime check
-            onPickLocation({ lon: e.lngLat.lng, lat: e.lngLat.lat });
+            if (!pickRef.current) return; // runtime check
+            cbRef.current?.({ lon: e.lngLat.lng, lat: e.lngLat.lat });
           });
         }
         // Expose lightweight test utilities in non-production for Playwright (no side effects in prod bundle tree-shaken)

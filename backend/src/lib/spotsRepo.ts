@@ -225,3 +225,31 @@ export async function updateSpotFields(spotId: string, patch: Partial<Spot>): Pr
   if (DEBUG) console.log('[repo] ddb Update(fields) result', { hasAttributes: !!res.Attributes });
   return (res.Attributes as Spot) || null;
 }
+
+async function deleteInMemory(spotId: string): Promise<boolean> {
+  const arr = readStore();
+  const idx = arr.findIndex((s) => s.spotId === spotId);
+  if (idx === -1) return false;
+  arr.splice(idx, 1);
+  writeStore(arr);
+  memory = arr;
+  if (DEBUG) console.log('[repo] deleteInMemory', { spotId, file: INMEMORY_FILE });
+  return true;
+}
+
+export async function deleteSpot(spotId: string): Promise<boolean> {
+  if (USE_INMEMORY) return deleteInMemory(spotId);
+  const [{ ddb, TABLE_SPOTS, ensureSpotsTable }, { DeleteCommand }] = await Promise.all([
+    import('./db'),
+    import('@aws-sdk/lib-dynamodb')
+  ]);
+  if (typeof ensureSpotsTable === 'function') {
+    await ensureSpotsTable();
+  }
+  const params = { TableName: TABLE_SPOTS, Key: { spotId }, ReturnValues: 'ALL_OLD' } as const;
+  if (DEBUG) console.log('[repo] ddb Delete', { spotId });
+  const res = await ddb.send(new DeleteCommand(params));
+  const existed = !!res.Attributes;
+  if (DEBUG) console.log('[repo] ddb Delete result', { existed });
+  return existed;
+}

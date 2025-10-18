@@ -24,7 +24,7 @@ export default function App() {
     lat: '',
     lng: '',
     submittedBy: '',
-  heightCm: '',
+    heightCm: '',
     lengthM: '',
     access: 'autorise',
     address: '',
@@ -369,6 +369,11 @@ function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
+  const [filter, setFilter] = useState('');
+  const [selectOnMap, setSelectOnMap] = useState(false);
+  const [mapSelection, setMapSelection] = useState<any | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'all'|'pending'|'approved'|'rejected'>('pending');
   const size = 20;
   const start = page * size;
   const end = start + size;
@@ -378,7 +383,7 @@ function AdminPanel() {
   async function fetchPending() {
     try {
       // Ne pas flash l'écran: on ne touche pas à "loading" si déjà chargé
-      const r = await fetch(`${base}/admin/spots/pending?size=1000`, { headers: { Authorization: `Bearer ${adminToken}` } });
+      const r = await fetch(`${base}/admin/spots?size=1000&status=${statusFilter}`, { headers: { Authorization: `Bearer ${adminToken}` } });
       const d = await r.json();
       setItems(d.items || []);
       // Reset pagination si la liste change
@@ -390,7 +395,7 @@ function AdminPanel() {
 
   useEffect(() => {
     let mounted = true;
-    fetch(`${base}/admin/spots/pending?size=1000`, { headers: { Authorization: `Bearer ${adminToken}` } })
+    fetch(`${base}/admin/spots?size=1000&status=${statusFilter}` as string, { headers: { Authorization: `Bearer ${adminToken}` } })
       .then((r) => r.json())
       .then((d) => {
         if (!mounted) return;
@@ -399,16 +404,72 @@ function AdminPanel() {
       .catch((e) => setError(String(e)))
       .finally(() => setLoading(false));
     return () => { mounted = false; };
-  }, []);
+  }, [statusFilter]);
 
   if (loading) return <View style={{ padding: 12 }}><Text>Chargement…</Text></View>;
   if (error) return <View style={{ padding: 12 }}><Text style={{ color: 'tomato' }}>{error}</Text></View>;
 
-  const pageItems = items.slice(start, end);
+  const normalized = filter.trim().toLowerCase();
+  const filtered = normalized
+    ? items.filter((s) =>
+        [s.name, s.type, s.submittedBy, s.address]
+          .filter(Boolean)
+          .some((v) => String(v).toLowerCase().includes(normalized))
+      )
+    : items;
+  const pageItems = filtered.slice(start, end);
 
   return (
     <ScrollView style={{ flex: 1, padding: 12 }}>
-      <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 12 }}>Modération — Soumissions en attente</Text>
+      <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 12 }}>Administration — Spots</Text>
+      <View style={{ marginBottom: 10, flexDirection: 'row', alignItems: 'center' }}>
+        <TextInput
+          placeholder="Filtrer (nom, type, auteur, adresse)"
+          value={filter}
+          onChangeText={setFilter}
+          style={{ flex: 1, borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 8, marginRight: 8 }}
+        />
+        <Pressable testID="btn-select-on-map" onPress={() => setSelectOnMap((v) => !v)} style={{ backgroundColor: selectOnMap ? '#0b3d91' : '#ddd', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6 }}>
+          <Text style={{ color: selectOnMap ? 'white' : '#333' }}>{selectOnMap ? 'Sélection carte: ON' : 'Sélection sur carte'}</Text>
+        </Pressable>
+      </View>
+      <View style={{ marginBottom: 10, flexDirection: 'row' }}>
+        {(['pending', 'approved', 'rejected', 'all'] as const).map((s) => (
+          <Pressable key={s} onPress={() => setStatusFilter(s)} style={{ paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, backgroundColor: statusFilter===s ? '#0b3d91' : '#ddd', marginRight: 8 }}>
+            <Text style={{ color: statusFilter===s ? 'white' : '#333' }}>{s}</Text>
+          </Pressable>
+        ))}
+      </View>
+      {selectOnMap && (
+        <View style={{ height: 300, marginBottom: 12, borderWidth: 1, borderColor: '#ddd', borderRadius: 6, overflow: 'hidden' }}>
+          <Map
+            points={items.map((s:any) => ({ lat: s.lat, lon: s.lng, title: s.name, description: s.description, type: s.type }))}
+            picking
+            onPickLocation={({ lat, lon }) => {
+              const sel = items.reduce<{s:any; d:number}|null>((acc, s:any) => {
+                const d = Math.hypot((s.lat - lat), (s.lng - lon));
+                if (!acc || d < acc.d) return { s, d };
+                return acc;
+              }, null);
+              if (sel && sel.d < 0.1) {
+                setMapSelection(sel.s);
+                setSelectedId(sel.s.spotId);
+                // Center the table pagination on the selected row
+                const idx = items.findIndex((x:any) => x.spotId === sel.s.spotId);
+                if (idx >= 0) {
+                  const newPage = Math.floor(idx / size);
+                  setPage(newPage);
+                }
+              }
+            }}
+          />
+          <View style={{ position: 'absolute', top: 8, left: 8, right: 8 }}>
+            <View style={{ backgroundColor: 'rgba(0,0,0,0.6)', padding: 8, borderRadius: 6 }}>
+              <Text style={{ color: 'white', fontWeight: '600' }}>{mapSelection ? `Sélection: ${mapSelection.name}` : 'Cliquez sur la carte pour sélectionner un spot'}</Text>
+            </View>
+          </View>
+        </View>
+      )}
       <View style={{ borderWidth: 1, borderColor: '#ddd', borderRadius: 6 }}>
         <View style={{ flexDirection: 'row', backgroundColor: '#f4f4f4', padding: 8 }}>
           <Text style={{ width: 120, fontWeight: '600' }}>Date</Text>
@@ -418,24 +479,24 @@ function AdminPanel() {
           <Text style={{ flex: 1, fontWeight: '600' }}>Actions</Text>
         </View>
         {pageItems.map((s) => (
-          <AdminRow key={s.spotId} spot={s} onChanged={fetchPending} />
+          <AdminRow key={s.spotId} spot={s} onChanged={fetchPending} selected={selectedId === s.spotId} />
         ))}
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
         <Pressable disabled={page===0} onPress={() => setPage((p) => Math.max(0, p-1))} style={{ opacity: page===0?0.5:1, backgroundColor: '#ddd', padding: 8, borderRadius: 4 }}>
           <Text>Précédent</Text>
         </Pressable>
-        <Pressable disabled={end>=items.length} onPress={() => setPage((p) => p+1)} style={{ opacity: end>=items.length?0.5:1, backgroundColor: '#ddd', padding: 8, borderRadius: 4 }}>
+        <Pressable disabled={end>=filtered.length} onPress={() => setPage((p) => p+1)} style={{ opacity: end>=filtered.length?0.5:1, backgroundColor: '#ddd', padding: 8, borderRadius: 4 }}>
           <Text>Suivant</Text>
         </Pressable>
       </View>
     </ScrollView>
   );
 }
-
-function AdminRow({ spot, onChanged }: { spot: any; onChanged?: () => void }) {
+function AdminRow({ spot, onChanged, selected }: { spot: any; onChanged?: () => void; selected?: boolean }) {
   const [f, setF] = useState<any>({ ...spot });
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const base = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://localhost:3000';
   const adminToken = process.env.EXPO_PUBLIC_ADMIN_TOKEN || 'dev';
 
@@ -456,13 +517,15 @@ function AdminRow({ spot, onChanged }: { spot: any; onChanged?: () => void }) {
   const dateStr = `${dt.toLocaleDateString()} ${dt.toLocaleTimeString()}`;
 
   return (
-    <View style={{ flexDirection: 'row', padding: 8, borderTopWidth: 1, borderTopColor: '#eee', alignItems: 'center' }}>
+    <View style={{ flexDirection: 'row', padding: 8, borderTopWidth: 1, borderTopColor: '#eee', alignItems: 'center', backgroundColor: selected ? '#eef7ff' : 'transparent' }}>
       <Text style={{ width: 120 }}>{dateStr}</Text>
       <TextInput value={f.name} onChangeText={(v) => setF((x:any)=>({ ...x, name:v }))} style={{ width: 140, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
       <TextInput value={f.type} onChangeText={(v) => setF((x:any)=>({ ...x, type:v }))} style={{ width: 100, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
       <TextInput value={f.submittedBy} onChangeText={(v) => setF((x:any)=>({ ...x, submittedBy:v }))} style={{ width: 120, borderWidth:1,borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
       <View style={{ flex:1, flexDirection: 'row', alignItems: 'center' }}>
-        <TextInput placeholder="Note de modération" value={f.moderationNote||''} onChangeText={(v)=> setF((x:any)=>({ ...x, moderationNote:v }))} style={{ flex:1, borderWidth:1, borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 8 }} />
+        <TextInput placeholder="lat" value={String(f.lat ?? '')} onChangeText={(v)=> setF((x:any)=>({ ...x, lat: v }))} style={{ width: 90, borderWidth:1, borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+        <TextInput placeholder="lng" value={String(f.lng ?? '')} onChangeText={(v)=> setF((x:any)=>({ ...x, lng: v }))} style={{ width: 90, borderWidth:1, borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 6 }} />
+        <TextInput placeholder="Description" value={f.description||''} onChangeText={(v)=> setF((x:any)=>({ ...x, description:v }))} style={{ flex:1, borderWidth:1, borderColor:'#ddd', borderRadius:4, padding:4, marginRight: 8 }} />
         <Pressable disabled={saving} onPress={() => save()} style={{ backgroundColor: '#eee', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, marginRight: 6 }}>
           <Text>Enregistrer</Text>
         </Pressable>
@@ -471,6 +534,26 @@ function AdminRow({ spot, onChanged }: { spot: any; onChanged?: () => void }) {
         </Pressable>
         <Pressable disabled={saving} onPress={() => save('rejected')} style={{ backgroundColor: '#e74c3c', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4 }}>
           <Text style={{ color: 'white' }}>Refuser</Text>
+        </Pressable>
+        <Pressable
+          disabled={deleting}
+          onPress={async () => {
+            const ok = typeof window !== 'undefined' && typeof window.confirm === 'function' ? window.confirm('Supprimer ce spot ?') : false;
+            if (!ok) return;
+            setDeleting(true);
+            try {
+              const res = await fetch(`${base}/admin/spots/${spot.spotId}`, { method: 'DELETE', headers: { Authorization: `Bearer ${adminToken}` } });
+              if (!res.ok && res.status !== 204) throw new Error(String(res.status));
+              onChanged?.();
+            } catch {
+              // ignore minimal UI
+            } finally {
+              setDeleting(false);
+            }
+          }}
+          style={{ backgroundColor: '#c0392b', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 4, marginLeft: 6 }}
+        >
+          <Text style={{ color: 'white' }}>{deleting ? 'Suppression…' : 'Supprimer'}</Text>
         </Pressable>
       </View>
     </View>
