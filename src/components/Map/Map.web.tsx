@@ -238,32 +238,6 @@ export default function MapWeb({ points, onPickLocation, picking }: MapProps) {
           }, firstSymbolLayerId);
         }
 
-        // Overlay letter label as a simple "icon"
-        if (!map.getLayer('unclustered-label')) {
-          map.addLayer({
-            id: 'unclustered-label',
-            type: 'symbol',
-            source: 'spots',
-            filter: ['!', ['has', 'point_count']],
-            layout: {
-              'text-field': [
-                'case',
-                ['==', ['get', 'type'], 'ponton'], 'P',
-                ['==', ['get', 'type'], 'association'], 'A',
-                ''
-              ],
-              'text-font': ['Noto Sans Regular'],
-              'text-size': 13,
-              'text-offset': [0, 0.9],
-              'text-allow-overlap': true
-            },
-            paint: {
-              'text-color': '#ffffff',
-              'text-halo-color': '#000000',
-              'text-halo-width': 1.4
-            }
-          }, firstSymbolLayerId);
-        }
         if (!map.getLayer('unclustered-title')) {
           map.addLayer({
             id: 'unclustered-title',
@@ -333,7 +307,7 @@ export default function MapWeb({ points, onPickLocation, picking }: MapProps) {
             .addTo(map);
         };
         // Register clicks on all visual single-point layers (the original code only had a non-existent 'unclustered-point')
-        ['unclustered-core', 'unclustered-halo', 'unclustered-glow', 'unclustered-label', 'unclustered-title'].forEach((layerId) => {
+        ['unclustered-core', 'unclustered-halo', 'unclustered-glow', 'unclustered-title'].forEach((layerId) => {
           if (map.getLayer(layerId)) {
             map.on('click', layerId, onPointClick);
           }
@@ -352,7 +326,7 @@ export default function MapWeb({ points, onPickLocation, picking }: MapProps) {
             openSpot(lon: number, lat: number) {
               try {
                 const pt = map.project([lon, lat]);
-                const features = map.queryRenderedFeatures(pt, { layers: ['unclustered-core', 'unclustered-label'] });
+                const features = map.queryRenderedFeatures(pt, { layers: ['unclustered-core'] });
                 if (features.length) {
                   onPointClick({ features });
                 }

@@ -145,23 +145,6 @@ export default function MapNative({ points, onPickLocation, picking }: MapProps)
               circleStrokeWidth: 1.5
             }}
           />
-          <SymbolLayer
-            id="unclustered-label"
-            filter={["!", ["has", "point_count"]]}
-            style={{
-              textField: [
-                'case',
-                ['==', ['get', 'type'], 'ponton'], 'P',
-                ['==', ['get', 'type'], 'association'], 'A',
-                ''
-              ],
-              textSize: 11,
-              textColor: '#ffffff',
-              textHaloColor: '#000000',
-              textHaloWidth: 0.8,
-              textAllowOverlap: true
-            }}
-          />
         </ShapeSource>
       </MapView>
     </View>
