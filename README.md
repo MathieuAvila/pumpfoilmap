@@ -14,7 +14,7 @@ npm run android
 
 ## Cartographie
 - Web: MapLibre GL. Clustering des spots (cercles), popup avec titre / description / métadonnées. Mode minimal (routes principales + fond simplifié).
-- Natif: @rnmapbox/maps. Clustering similaire et alertes natives sur appui.
+- Natif: WebView + MapLibre GL JS (via `react-native-webview`). Clustering similaire et popups/picking via bridge RN.
 
 ## Structure
 - `src/components/Map/Map.web.tsx` / `Map.native.tsx`: implémentations spécifiques (marqueurs cliquables)

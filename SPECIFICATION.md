@@ -34,7 +34,7 @@ Fournir une carte interactive des pontons de pumpfoil, enrichie par les adhéren
 
 ## Cartographie et parité multi-plateforme
 - Web: MapLibre GL JS (style minimal routes + fond ou style complet), clustering GeoJSON
-- iOS/Android: @rnmapbox/maps avec clustering équivalent
+- iOS/Android: WebView + MapLibre GL JS (via `react-native-webview`), clustering équivalent et picking
 - Abstraction `Map` avec implémentations spécifiques (`Map.web.tsx`, `Map.native.tsx`)
 
 ## Authentification et rôles

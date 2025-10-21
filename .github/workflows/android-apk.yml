@@ -58,10 +58,10 @@ jobs:
         run: npx expo prebuild -p android --no-install --clean
       - name: Build APK (release unsigned)
         working-directory: android
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease --stacktrace
       - name: Build APK (debug)
         working-directory: android
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --stacktrace
       - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
         with:
