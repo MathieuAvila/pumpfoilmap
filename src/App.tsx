@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Platform, ActivityIndicator, TextInput, Pressable, ScrollView } from 'react-native';
+import { View, Text, Platform, ActivityIndicator, TextInput, Pressable, ScrollView, Image } from 'react-native';
 import Map from './components/Map';
 import sampleData from './data/sample-spots.json';
 import { fetchSpots, submitSpot, type SubmitSpotInput } from './services/api';
@@ -106,9 +106,16 @@ export default function App() {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ padding: 12, backgroundColor: '#0b3d91' }}>
-        <Text style={{ color: 'white', fontSize: 18, fontWeight: '600' }}>
-          PumpfoilMap — Spots ({Platform.OS})
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Image
+            source={require('../logos/logo_128.png')}
+            style={{ width: 28, height: 28, marginRight: 8, borderRadius: 6 }}
+            accessibilityLabel="PumpfoilMap logo"
+          />
+          <Text style={{ color: 'white', fontSize: 18, fontWeight: '600' }}>
+            PumpfoilMap — Spots ({Platform.OS})
+          </Text>
+        </View>
         <View style={{ height: 8 }} />
       </View>
       {showGdpr && (

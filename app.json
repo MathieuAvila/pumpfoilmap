@@ -7,6 +7,6 @@
     "orientation": "portrait",
     "ios": { "supportsTablet": true },
     "android": {},
-    "web": { "bundler": "metro" }
+    "web": { "bundler": "metro", "favicon": "./logos/favicon.png" }
   }
 }
