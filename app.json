@@ -8,9 +8,19 @@
     "assetBundlePatterns": [
       "logos/*"
     ],
+    "splash": {
+      "backgroundColor": "#0b3d91",
+      "resizeMode": "contain",
+      "image": "./logos/logo_128.png"
+    },
     "ios": { "supportsTablet": true },
     "android": {
-      "package": "com.pumpfoilmap.app"
+      "package": "com.pumpfoilmap.app",
+      "splash": {
+        "backgroundColor": "#0b3d91",
+        "resizeMode": "contain",
+        "image": "./logos/logo_128.png"
+      }
     },
     "web": { "bundler": "metro", "favicon": "./logos/favicon.png" }
   }
