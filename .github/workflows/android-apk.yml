@@ -55,6 +55,7 @@ jobs:
       - name: Prebuild Android (Expo -> Native)
         env:
           CI: '1'
+          EXPO_PUBLIC_MAPTILER_KEY: ${{ secrets.EXPO_PUBLIC_MAPTILER_KEY }}
         run: npx expo prebuild -p android --no-install --clean
       - name: Build APK (release unsigned)
         working-directory: android
