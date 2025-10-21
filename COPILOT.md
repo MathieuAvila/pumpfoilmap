@@ -6,6 +6,8 @@ Règle: chaque changement doit passer le lint (npm run lint) sans avertissement 
 
 Règle: chaque changement doit faire passer tous les tests (npm test et npm run test:e2e).
 
+Règle: ignorer le fichier MYCOMMANDS.md, c'est un fichier qui ne doit pas être commité ni modifié
+
 - Frontend
   - src/App.tsx
   - src/components/Map/Map.web.tsx

@@ -12,7 +12,11 @@ npm install
 
 Démarrer en local (API + DynamoDB Local + seeds)
 ```bash
-npm run dev
+export AWS_ACCESS_KEY_ID=fake
+export AWS_SECRET_ACCESS_KEY=fake
+export AWS_REGION=eu-west-1
+export AWS_EC2_METADATA_DISABLED=true
+DYNAMODB_ENDPOINT=http://localhost:8000 npx serverless offline --stage dev
 # API: http://localhost:3000
 # DynamoDB Local: http://localhost:8000
 ```
