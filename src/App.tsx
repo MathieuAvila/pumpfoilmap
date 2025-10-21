@@ -106,15 +106,15 @@ export default function App() {
   return (
     <View style={{ flex: 1 }}>
       <View style={{ padding: 12, backgroundColor: '#0b3d91' }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Image
+            source={require('../logos/logo_128.png')}
+            style={{ width: 40, height: 40, marginRight: 12, borderRadius: 8 }}
+            accessibilityLabel="PumpfoilMap logo"
+          />
           <Text style={{ color: 'white', fontSize: 18, fontWeight: '600' }}>
             PumpfoilMap — Spots ({Platform.OS})
           </Text>
-          <Image
-            source={require('../logos/logo_128.png')}
-            style={{ width: 40, height: 40, marginLeft: 12, borderRadius: 8 }}
-            accessibilityLabel="PumpfoilMap logo"
-          />
         </View>
         <View style={{ height: 8 }} />
       </View>
