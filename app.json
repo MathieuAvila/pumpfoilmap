@@ -9,7 +9,9 @@
       "logos/*"
     ],
     "ios": { "supportsTablet": true },
-    "android": {},
+    "android": {
+      "package": "com.pumpfoilmap.app"
+    },
     "web": { "bundler": "metro", "favicon": "./logos/favicon.png" }
   }
 }
