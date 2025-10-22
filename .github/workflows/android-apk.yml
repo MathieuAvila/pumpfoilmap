@@ -57,12 +57,23 @@ jobs:
           CI: '1'
           EXPO_PUBLIC_MAPTILER_KEY: ${{ secrets.EXPO_PUBLIC_MAPTILER_KEY }}
         run: npx expo prebuild -p android --no-install --clean
+      - name: Ensure Maven Central and Google repos for all projects
+        working-directory: android
+        run: |
+          cat > repos.init.gradle << 'EOF'
+          allprojects { project ->
+            repositories {
+              mavenCentral()
+              google()
+            }
+          }
+          EOF
       - name: Build APK (release unsigned)
         working-directory: android
-        run: ./gradlew assembleRelease --stacktrace
+        run: ./gradlew -I repos.init.gradle assembleRelease --stacktrace
       - name: Build APK (debug)
         working-directory: android
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew -I repos.init.gradle assembleDebug --stacktrace
       - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
         with:
