@@ -6,6 +6,7 @@ import { fetchSpots, submitSpot, type SubmitSpotInput } from './services/api';
 import type { HeatPoint } from './components/Map';
 
 export default function App() {
+  const showLogos = (process.env.EXPO_PUBLIC_DISABLE_LOGOS ?? '0') !== '1';
   const [points, setPoints] = useState<HeatPoint[]>(sampleData.points as unknown as HeatPoint[]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -107,11 +108,13 @@ export default function App() {
     <View style={{ flex: 1 }}>
       <View style={{ padding: 12, backgroundColor: '#0b3d91' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Image
-            source={require('../logos/logo_128.png')}
-            style={{ width: 40, height: 40, marginRight: 12, borderRadius: 8 }}
-            accessibilityLabel="PumpfoilMap logo"
-          />
+          {showLogos ? (
+            <Image
+              source={require('../logos/logo_128.png')}
+              style={{ width: 40, height: 40, marginRight: 12, borderRadius: 8 }}
+              accessibilityLabel="PumpfoilMap logo"
+            />
+          ) : null}
           <Text style={{ color: 'white', fontSize: 18, fontWeight: '600' }}>
             PumpfoilMap — Spots ({Platform.OS})
           </Text>
