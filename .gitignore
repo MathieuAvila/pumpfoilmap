@@ -6,4 +6,4 @@ build
 web-build
 *.log
 dist-cjs
-./MYCOMMANDS.md
+MYCOMMANDS.md
